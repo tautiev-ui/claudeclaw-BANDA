@@ -214,9 +214,12 @@ npm run build
 
 ---
 
-## Лицензия
+## Ссылки
 
-Проект для подписчиков AI ОПЕРАЦИОНКА. Основан на [ClaudeClaw](https://github.com/earlyaidopters/claudeclaw).
+- 📺 YouTube: [@alekseiulianov](https://youtube.com/@alekseiulianov)
+- 📱 Telegram канал: [@Sprut_AI](https://t.me/Sprut_AI)
+- 💬 Чат AI ОПЕРАЦИОНКА: [Присоединиться](https://t.me/+your_invite_link)
+- 🔧 Основа: [ClaudeClaw](https://github.com/earlyaidopters/claudeclaw)
 
 ---
 

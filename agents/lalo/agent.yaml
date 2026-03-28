@@ -11,7 +11,6 @@ dashboard_port: 3144
 skills:
   - marketing-mode
   - creator-marketing
-  - copywriter-agent
   - analytics
   - channel-analyzer
   - deep-research-pro
@@ -20,7 +19,6 @@ skills:
   - tweet-writer
   - last30days
   - brainstorming
-  - subscriber-support
   - minimax-docx
   - minimax-pdf
   - minimax-xlsx
