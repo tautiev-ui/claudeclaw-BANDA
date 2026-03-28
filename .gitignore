@@ -60,3 +60,7 @@ scripts/waste-reminder.sh
 
 # Personal config overrides (if user creates their own outside the repo)
 # NOTE: agent CLAUDE.md and agent.yaml ARE tracked — they define the team
+
+# Build artifacts (dotnet)
+**/bin/
+**/obj/
