@@ -216,7 +216,7 @@ npm run build
 
 ## Лицензия
 
-Проект для подписчиков [AI ОПЕРАЦИОНКА](https://t.me/Sprut_AI). Основан на [ClaudeClaw](https://github.com/earlyaidopters/claudeclaw).
+Проект для подписчиков AI ОПЕРАЦИОНКА. Основан на [ClaudeClaw](https://github.com/earlyaidopters/claudeclaw).
 
 ---
 

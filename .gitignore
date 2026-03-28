@@ -18,13 +18,7 @@ store/*.sqlite
 
 # Workspace - user content
 workspace/
-
-# DB files anywhere
-*.db
-*.db-wal
-*.db-shm
-*.sqlite
-*.sqlite3
+!workspace/.gitkeep
 
 # Migration state — local only
 migrations/.applied.json
