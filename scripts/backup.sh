@@ -5,7 +5,7 @@
 # Хранит последние 7 бэкапов, старые удаляет.
 # Запуск: launchd (com.nacho-vargas.backup) ежедневно в 03:30
 
-PROJECT_ROOT="$HOME/Desktop/Nacho_Vargas"
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BACKUP_DIR="$PROJECT_ROOT/backups"
 DATE=$(date "+%Y-%m-%d_%H-%M")
 BACKUP_FILE="$BACKUP_DIR/nacho-backup-$DATE.tar.gz"

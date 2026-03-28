@@ -58,7 +58,5 @@ output/*.html
 # Personal scripts — not for sharing
 scripts/waste-reminder.sh
 
-# Personal config — lives in CLAUDECLAW_CONFIG (default ~/.claudeclaw)
-CLAUDE.md
-agents/*/agent.yaml
-agents/*/CLAUDE.md
+# Personal config overrides (if user creates their own outside the repo)
+# NOTE: agent CLAUDE.md and agent.yaml ARE tracked — they define the team

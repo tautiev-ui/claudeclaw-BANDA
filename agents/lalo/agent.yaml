@@ -1,0 +1,27 @@
+name: Lalo Salamanca
+description: Маркетолог-расследователь - тренды, контент-стратегия, конкурентный анализ, копирайтинг, воронки
+
+telegram_bot_token_env: LALO_BOT_TOKEN
+
+model: claude-sonnet-4-20250514
+
+dashboard_port: 3144
+
+# Маркетинговые скиллы
+skills:
+  - marketing-mode
+  - creator-marketing
+  - copywriter-agent
+  - analytics
+  - channel-analyzer
+  - deep-research-pro
+  - social-card-gen
+  - youtube-seo
+  - tweet-writer
+  - last30days
+  - brainstorming
+  - subscriber-support
+  - minimax-docx
+  - minimax-pdf
+  - minimax-xlsx
+  - pptx-generator
