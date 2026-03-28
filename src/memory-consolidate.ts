@@ -1,4 +1,4 @@
-import { generateContent, parseJsonResponse } from './gemini.js';
+import { generateContent, parseJsonResponse } from './extraction.js';
 import {
   getUnconsolidatedMemories,
   markMemoriesConsolidated,

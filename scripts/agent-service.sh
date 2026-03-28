@@ -21,6 +21,24 @@ if [ -z "$ACTION" ] || [ -z "$AGENT_ID" ]; then
 fi
 
 SERVICE_NAME="com.claudeclaw.agent-${AGENT_ID}"
+AGENT_DIR="${PROJECT_DIR}/agents/${AGENT_ID}"
+
+# ── Create skill symlinks for the agent ──────────────────────────────
+# Each agent gets symlinks to shared project resources:
+#   .claude/skills → project .claude/skills (project-level skills)
+#   .claudeclaw    → project .claudeclaw (skills-index, settings)
+# User-level skills (~/.claude/skills/) are available automatically.
+if [ -d "$AGENT_DIR" ] && [ "$ACTION" = "install" ]; then
+  mkdir -p "$AGENT_DIR/.claude"
+  if [ ! -e "$AGENT_DIR/.claude/skills" ]; then
+    ln -s ../../../.claude/skills "$AGENT_DIR/.claude/skills"
+    echo "Symlinked: .claude/skills"
+  fi
+  if [ ! -e "$AGENT_DIR/.claudeclaw" ]; then
+    ln -s ../../.claudeclaw "$AGENT_DIR/.claudeclaw"
+    echo "Symlinked: .claudeclaw"
+  fi
+fi
 
 if [ "$(uname)" = "Darwin" ]; then
   # macOS: launchd plist
@@ -43,6 +61,13 @@ if [ "$(uname)" = "Darwin" ]; then
     <string>--agent</string>
     <string>${AGENT_ID}</string>
   </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>HOME</key>
+    <string>${HOME}</string>
+  </dict>
   <key>WorkingDirectory</key>
   <string>${PROJECT_DIR}</string>
   <key>RunAtLoad</key>

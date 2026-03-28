@@ -9,8 +9,17 @@ dist/
 
 # Runtime data — NEVER commit. Contains WhatsApp/Slack messages,
 # session tokens, conversation logs, and database files.
-store/
+store/*.db
+store/*.db-shm
+store/*.db-wal
+store/*.log
+store/*.pid
+store/*.sqlite
+
+# Workspace - user content
 workspace/
+
+# DB files anywhere
 *.db
 *.db-wal
 *.db-shm
@@ -19,6 +28,19 @@ workspace/
 
 # Migration state — local only
 migrations/.applied.json
+
+# Backups — local only, contains .env with secrets
+backups/
+
+# Output — generated files
+output/*.pdf
+output/*.html
+
+# Memory — personal data
+.claudeclaw/memory/core/*
+.claudeclaw/memory/decisions/*
+!.claudeclaw/memory/core/.gitkeep
+!.claudeclaw/memory/decisions/.gitkeep
 
 # Logs
 *.log

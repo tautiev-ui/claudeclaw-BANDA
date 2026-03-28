@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import fs from 'fs';
 import path from 'path';
-import { readEnvFile } from './env.js';
+import { readEnvFile, clearEnvCache } from './env.js';
 
 const TMP_DIR = '/tmp/claudeclaw-env-test';
 const TMP_ENV = path.join(TMP_DIR, '.env');
@@ -22,6 +22,7 @@ function cleanup(): void {
 describe('readEnvFile', () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    clearEnvCache();
     cleanup();
   });
 

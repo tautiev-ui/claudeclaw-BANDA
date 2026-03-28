@@ -1,4 +1,5 @@
-import { generateContent, parseJsonResponse } from './gemini.js';
+import { AGENT_ID } from './config.js';
+import { generateContent, parseJsonResponse } from './extraction.js';
 import { embedText } from './embeddings.js';
 import { saveStructuredMemory, saveMemoryEmbedding } from './db.js';
 import { logger } from './logger.js';
@@ -8,6 +9,7 @@ interface ExtractionResult {
   entities: string[];
   topics: string[];
   importance: number;
+  type?: 'fact' | 'decision' | 'event';
 }
 
 const EXTRACTION_PROMPT = `You are a memory extraction agent. Given a conversation exchange between a user and their AI assistant, decide if it contains information worth remembering long-term.
@@ -39,8 +41,15 @@ If extracting, return JSON:
   "summary": "1-2 sentence summary of what to remember",
   "entities": ["entity1", "entity2"],
   "topics": ["topic1", "topic2"],
-  "importance": 0.0-1.0
+  "importance": 0.0-1.0,
+  "type": "fact|decision|event"
 }
+
+Type guide:
+- "fact": Personal info, preferences, identities, relationships, technical specs (e.g. "User lives in Tbilisi", "Uses Mac mini M4")
+- "decision": Policies, rules, architectural choices, workflow decisions (e.g. "Use GPT-4.1-mini for extraction", "Deploy via launchd")
+- "event": What happened, completed tasks, milestones (e.g. "Fixed memory pipeline", "Installed new agent")
+- "workspace": Temporary working notes, research findings, draft data, intermediate results (e.g. "Found 5 competitors in market", "API response format documented")
 
 Importance guide:
 - 0.8-1.0: Core identity, strong preferences, critical business rules, relationship dynamics
@@ -85,6 +94,10 @@ export async function ingestConversationTurn(
     // Clamp importance to valid range
     const importance = Math.max(0, Math.min(1, result.importance));
 
+    // Validate and default memory type
+    const validTypes = new Set(['fact', 'decision', 'event', 'workspace']);
+    const memoryType = validTypes.has(result.type ?? '') ? result.type! : 'general';
+
     const memoryId = saveStructuredMemory(
       chatId,
       userMessage,
@@ -93,6 +106,8 @@ export async function ingestConversationTurn(
       result.topics ?? [],
       importance,
       'conversation',
+      memoryType,
+      AGENT_ID,
     );
 
     // Generate and store embedding (async, non-blocking for the save itself)

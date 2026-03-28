@@ -11,6 +11,8 @@ export interface AgentConfig {
   botTokenEnv: string;
   botToken: string;
   model?: string;
+  skills?: string[];
+  dashboardPort?: number;
   obsidian?: {
     vault: string;
     folders: string[];
@@ -60,6 +62,8 @@ export function loadAgentConfig(agentId: string): AgentConfig {
   const description = (raw['description'] as string) ?? '';
   const botTokenEnv = raw['telegram_bot_token_env'] as string;
   const model = raw['model'] as string | undefined;
+  const skills = (raw['skills'] as string[] | undefined) ?? [];
+  const dashboardPort = raw['dashboard_port'] as number | undefined;
 
   if (!name || !botTokenEnv) {
     throw new Error(`Agent config ${configPath} must have 'name' and 'telegram_bot_token_env'`);
@@ -81,7 +85,7 @@ export function loadAgentConfig(agentId: string): AgentConfig {
     };
   }
 
-  return { name, description, botTokenEnv, botToken, model, obsidian };
+  return { name, description, botTokenEnv, botToken, model, skills, dashboardPort, obsidian };
 }
 
 /** List all configured agent IDs (directories under agents/ with agent.yaml).
@@ -127,6 +131,7 @@ export function listAllAgents(): Array<{
   name: string;
   description: string;
   model?: string;
+  skills?: string[];
 }> {
   const ids = listAgentIds();
   const result: Array<{
@@ -134,6 +139,7 @@ export function listAllAgents(): Array<{
     name: string;
     description: string;
     model?: string;
+    skills?: string[];
   }> = [];
 
   for (const id of ids) {
@@ -144,6 +150,7 @@ export function listAllAgents(): Array<{
         name: config.name,
         description: config.description,
         model: config.model,
+        skills: config.skills,
       });
     } catch {
       // Skip agents with broken config

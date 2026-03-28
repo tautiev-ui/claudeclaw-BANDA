@@ -1,6 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('./gemini.js', () => ({
+vi.mock('./config.js', () => ({
+  AGENT_ID: 'main',
+}));
+
+vi.mock('./extraction.js', () => ({
   generateContent: vi.fn(),
   parseJsonResponse: vi.fn(),
 }));
@@ -19,7 +23,7 @@ vi.mock('./logger.js', () => ({
 }));
 
 import { ingestConversationTurn } from './memory-ingest.js';
-import { generateContent, parseJsonResponse } from './gemini.js';
+import { generateContent, parseJsonResponse } from './extraction.js';
 import { saveStructuredMemory } from './db.js';
 
 const mockGenerateContent = vi.mocked(generateContent);
@@ -106,6 +110,8 @@ describe('ingestConversationTurn', () => {
       ['preferences', 'UI'],
       0.8,
       'conversation',
+      'general',
+      'main',
     );
   });
 
@@ -181,6 +187,8 @@ describe('ingestConversationTurn', () => {
       [],
       1.0,  // clamped
       'conversation',
+      'general',
+      'main',
     );
   });
 
@@ -255,6 +263,8 @@ describe('ingestConversationTurn', () => {
       [],  // defaults to empty
       0.5,
       'conversation',
+      'general',
+      'main',
     );
   });
 

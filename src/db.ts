@@ -216,6 +216,19 @@ function createSchema(database: Database.Database): void {
 
     CREATE INDEX IF NOT EXISTS idx_inter_agent_tasks_status ON inter_agent_tasks(status, created_at DESC);
 
+    -- Cross-agent scheduled chains: step1 result → step2 input
+    CREATE TABLE IF NOT EXISTS scheduled_chains (
+      id            TEXT PRIMARY KEY,
+      name          TEXT NOT NULL,
+      cron          TEXT NOT NULL,
+      steps         TEXT NOT NULL,  -- JSON array of { agent_id, prompt_template }
+      enabled       INTEGER NOT NULL DEFAULT 1,
+      last_run_at   TEXT,
+      last_status   TEXT,           -- 'completed' | 'failed' | 'running'
+      last_result   TEXT,
+      created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE VIRTUAL TABLE IF NOT EXISTS memories_fts USING fts5(
       summary,
       raw_text,
@@ -413,6 +426,27 @@ function runMigrations(database: Database.Database): void {
     database.exec(`ALTER TABLE memories ADD COLUMN embedding TEXT`);
     logger.info('Migration: added embedding column to memories table');
   }
+
+  // Add memory_type column: fact | decision | event | general
+  if (!memColsPost.some((c) => c.name === 'memory_type')) {
+    database.exec(`ALTER TABLE memories ADD COLUMN memory_type TEXT NOT NULL DEFAULT 'general'`);
+    logger.info('Migration: added memory_type column to memories table');
+  }
+
+  // Add agent_id column: which agent created this memory
+  const memColsFinal = database.prepare('PRAGMA table_info(memories)').all() as Array<{ name: string }>;
+  if (!memColsFinal.some((c) => c.name === 'agent_id')) {
+    database.exec(`ALTER TABLE memories ADD COLUMN agent_id TEXT NOT NULL DEFAULT 'main'`);
+    database.exec(`CREATE INDEX IF NOT EXISTS idx_memories_agent ON memories(agent_id)`);
+    logger.info('Migration: added agent_id column to memories table');
+  }
+
+  // Add baseline_tokens column to sessions (persist across restarts)
+  const sessCols = database.prepare('PRAGMA table_info(sessions)').all() as Array<{ name: string }>;
+  if (!sessCols.some((c) => c.name === 'baseline_tokens')) {
+    database.exec(`ALTER TABLE sessions ADD COLUMN baseline_tokens INTEGER`);
+    logger.info('Migration: added baseline_tokens column to sessions table');
+  }
 }
 
 /** @internal - for tests only. Creates a fresh in-memory database. */
@@ -442,6 +476,21 @@ export function clearSession(chatId: string, agentId = 'main'): void {
   db.prepare('DELETE FROM sessions WHERE chat_id = ? AND agent_id = ?').run(chatId, agentId);
 }
 
+// ── Session Baseline (persisted across restarts) ──────────────────
+
+export function getSessionBaseline(chatId: string, agentId = 'main'): number | undefined {
+  const row = db
+    .prepare('SELECT baseline_tokens FROM sessions WHERE chat_id = ? AND agent_id = ?')
+    .get(chatId, agentId) as { baseline_tokens: number | null } | undefined;
+  return row?.baseline_tokens ?? undefined;
+}
+
+export function setSessionBaseline(chatId: string, tokens: number, agentId = 'main'): void {
+  db.prepare(
+    'UPDATE sessions SET baseline_tokens = ? WHERE chat_id = ? AND agent_id = ?',
+  ).run(tokens, chatId, agentId);
+}
+
 // ── Memory (V2: structured with LLM extraction) ────────────────────
 
 export interface Memory {
@@ -457,6 +506,8 @@ export interface Memory {
   salience: number;
   consolidated: number;
   embedding: string | null; // JSON array of floats
+  memory_type: string; // 'fact' | 'decision' | 'event' | 'general'
+  agent_id: string;    // which agent created this memory
   created_at: number;
   accessed_at: number;
 }
@@ -478,11 +529,13 @@ export function saveStructuredMemory(
   topics: string[],
   importance: number,
   source = 'conversation',
+  memoryType = 'general',
+  agentId = 'main',
 ): number {
   const now = Math.floor(Date.now() / 1000);
   const result = db.prepare(
-    `INSERT INTO memories (chat_id, source, raw_text, summary, entities, topics, importance, created_at, accessed_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO memories (chat_id, source, raw_text, summary, entities, topics, importance, memory_type, agent_id, created_at, accessed_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(
     chatId,
     source,
@@ -491,10 +544,24 @@ export function saveStructuredMemory(
     JSON.stringify(entities),
     JSON.stringify(topics),
     importance,
+    memoryType,
+    agentId,
     now,
     now,
   );
   return result.lastInsertRowid as number;
+}
+
+// ── Recency scoring ────────────────────────────────────────────────
+// Exponential decay: newer memories get higher boost.
+// Floor at 0.5 so old memories never completely disappear.
+// Half-life ~60 days: a 2-month-old memory keeps ~50% boost.
+const RECENCY_DECAY_RATE = 0.012; // per day
+const RECENCY_FLOOR = 0.5;
+
+function recencyBoost(createdAtUnix: number): number {
+  const ageDays = (Date.now() / 1000 - createdAtUnix) / 86400;
+  return Math.max(RECENCY_FLOOR, Math.exp(-RECENCY_DECAY_RATE * ageDays));
 }
 
 const STOP_WORDS = new Set([
@@ -535,28 +602,45 @@ function extractKeywords(query: string): string[] {
  * The queryEmbedding parameter is optional; if provided, vector search is used first.
  * If not provided (or no embeddings in DB), falls back to keyword search.
  */
+/** Boost factor for memories created by the same agent (1.3x priority). */
+const AGENT_BOOST = 1.3;
+
 export function searchMemories(
   chatId: string,
   query: string,
   limit = 5,
   queryEmbedding?: number[],
+  agentId = 'main',
 ): Memory[] {
-  // Strategy 1: Vector similarity search (if embedding provided)
+  // Filter: workspace memories are only visible to the agent that created them
+  const isVisible = (m: { memory_type?: string; agent_id?: string }) =>
+    m.memory_type !== 'workspace' || m.agent_id === agentId;
+
+  // Strategy 1: Vector similarity search with recency boost + agent affinity
   if (queryEmbedding && queryEmbedding.length > 0) {
     const candidates = getMemoriesWithEmbeddings(chatId);
     if (candidates.length > 0) {
       const scored = candidates
-        .map((c) => ({ id: c.id, score: cosineSimilarity(queryEmbedding, c.embedding) }))
-        .filter((s) => s.score > 0.3) // minimum similarity threshold
+        .filter(isVisible)
+        .map((c) => ({
+          id: c.id,
+          score: cosineSimilarity(queryEmbedding, c.embedding)
+            * recencyBoost(c.created_at)
+            * (c.agent_id === agentId ? AGENT_BOOST : 1.0),
+        }))
+        .filter((s) => s.score > 0.2) // lower threshold since recency reduces scores
         .sort((a, b) => b.score - a.score)
         .slice(0, limit);
 
       if (scored.length > 0) {
         const ids = scored.map((s) => s.id);
         const placeholders = ids.map(() => '?').join(',');
-        return db
+        // Preserve the scored order
+        const rows = db
           .prepare(`SELECT * FROM memories WHERE id IN (${placeholders})`)
           .all(...ids) as Memory[];
+        const rowMap = new Map(rows.map((r) => [r.id, r]));
+        return ids.map((id) => rowMap.get(id)!).filter(Boolean);
       }
     }
   }
@@ -566,6 +650,7 @@ export function searchMemories(
   if (keywords.length === 0) return [];
 
   const ftsQuery = keywords.map((w) => `"${w}"*`).join(' OR ');
+  // Fetch more candidates than needed, then re-rank with recency
   let results = db
     .prepare(
       `SELECT memories.* FROM memories
@@ -574,9 +659,17 @@ export function searchMemories(
        ORDER BY rank
        LIMIT ?`,
     )
-    .all(ftsQuery, chatId, limit) as Memory[];
+    .all(ftsQuery, chatId, limit * 3) as Memory[];
 
-  if (results.length > 0) return results;
+  if (results.length > 0) {
+    // Re-rank: importance * recency_boost * agent affinity, then trim to limit
+    return results
+      .filter(isVisible)
+      .sort((a, b) =>
+        b.importance * recencyBoost(b.created_at) * (b.agent_id === agentId ? AGENT_BOOST : 1.0)
+        - a.importance * recencyBoost(a.created_at) * (a.agent_id === agentId ? AGENT_BOOST : 1.0))
+      .slice(0, limit);
+  }
 
   // Strategy 3: LIKE fallback on summary + entities + topics
   const likeConditions = keywords.map(() =>
@@ -592,27 +685,39 @@ export function searchMemories(
     .prepare(
       `SELECT * FROM memories
        WHERE chat_id = ? AND (${likeConditions})
-       ORDER BY importance DESC, accessed_at DESC
+       ORDER BY importance DESC, created_at DESC
        LIMIT ?`,
     )
-    .all(chatId, ...likeParams, limit) as Memory[];
+    .all(chatId, ...likeParams, limit * 3) as Memory[];
 
-  return results;
+  // Re-rank LIKE results with agent affinity boost
+  return results
+    .filter(isVisible)
+    .sort((a, b) =>
+      b.importance * recencyBoost(b.created_at) * (b.agent_id === agentId ? AGENT_BOOST : 1.0)
+      - a.importance * recencyBoost(a.created_at) * (a.agent_id === agentId ? AGENT_BOOST : 1.0))
+    .slice(0, limit);
 }
 
 export function saveMemoryEmbedding(memoryId: number, embedding: number[]): void {
   db.prepare('UPDATE memories SET embedding = ? WHERE id = ?').run(JSON.stringify(embedding), memoryId);
 }
 
-export function getMemoriesWithEmbeddings(chatId: string): Array<{ id: number; embedding: number[]; summary: string; importance: number }> {
+/** Max candidates for vector search. Prevents loading thousands of embeddings into memory. */
+const MAX_EMBEDDING_CANDIDATES = 500;
+
+export function getMemoriesWithEmbeddings(chatId: string): Array<{ id: number; embedding: number[]; summary: string; importance: number; created_at: number; agent_id: string; memory_type?: string }> {
   const rows = db
-    .prepare('SELECT id, embedding, summary, importance FROM memories WHERE chat_id = ? AND embedding IS NOT NULL')
-    .all(chatId) as Array<{ id: number; embedding: string; summary: string; importance: number }>;
+    .prepare('SELECT id, embedding, summary, importance, created_at, agent_id, memory_type FROM memories WHERE chat_id = ? AND embedding IS NOT NULL ORDER BY created_at DESC LIMIT ?')
+    .all(chatId, MAX_EMBEDDING_CANDIDATES) as Array<{ id: number; embedding: string; summary: string; importance: number; created_at: number; agent_id: string; memory_type?: string }>;
   return rows.map((r) => ({
     id: r.id,
     embedding: JSON.parse(r.embedding) as number[],
     summary: r.summary,
     importance: r.importance,
+    created_at: r.created_at,
+    agent_id: r.agent_id ?? 'main',
+    memory_type: r.memory_type,
   }));
 }
 
@@ -972,6 +1077,24 @@ export function getRecentConversation(
        ORDER BY created_at DESC LIMIT ?`,
     )
     .all(chatId, limit) as ConversationTurn[];
+}
+
+/**
+ * Get conversation turns from the last N hours.
+ * Returns turns in chronological order (oldest first).
+ */
+export function getConversationSince(
+  chatId: string,
+  hoursAgo: number,
+): ConversationTurn[] {
+  const since = Math.floor(Date.now() / 1000) - hoursAgo * 3600;
+  return db
+    .prepare(
+      `SELECT * FROM conversation_log
+       WHERE chat_id = ? AND created_at >= ?
+       ORDER BY created_at ASC`,
+    )
+    .all(chatId, since) as ConversationTurn[];
 }
 
 /**
@@ -1464,6 +1587,21 @@ export function createInterAgentTask(
     `INSERT INTO inter_agent_tasks (id, from_agent, to_agent, chat_id, prompt, status, created_at)
      VALUES (?, ?, ?, ?, ?, 'pending', datetime('now'))`,
   ).run(id, fromAgent, toAgent, chatId, prompt);
+  syncTeamBoard();
+}
+
+/**
+ * Update task status without setting result (for intermediate statuses).
+ * Flow: pending → accepted → in_progress → completed/failed
+ */
+export function updateInterAgentTaskStatus(
+  id: string,
+  status: 'accepted' | 'in_progress',
+): void {
+  db.prepare(
+    `UPDATE inter_agent_tasks SET status = ? WHERE id = ?`,
+  ).run(status, id);
+  syncTeamBoard();
 }
 
 export function completeInterAgentTask(
@@ -1474,6 +1612,7 @@ export function completeInterAgentTask(
   db.prepare(
     `UPDATE inter_agent_tasks SET status = ?, result = ?, completed_at = datetime('now') WHERE id = ?`,
   ).run(status, result?.slice(0, 2000) ?? null, id);
+  syncTeamBoard();
 }
 
 export function getInterAgentTasks(
@@ -1492,4 +1631,118 @@ export function getInterAgentTasks(
       'SELECT * FROM inter_agent_tasks ORDER BY created_at DESC LIMIT ?',
     )
     .all(limit) as InterAgentTask[];
+}
+
+// ── Team Board (file-based fallback) ────────────────────────────────
+
+const STATUS_EMOJI: Record<string, string> = {
+  pending: '📋',
+  accepted: '👋',
+  in_progress: '⏳',
+  completed: '✅',
+  failed: '❌',
+};
+
+/**
+ * Sync active tasks to store/team-board.md.
+ * This file acts as a human-readable fallback — survives restarts,
+ * timeouts, and can be read by any agent on recovery.
+ */
+export function syncTeamBoard(): void {
+  try {
+    const tasks = db
+      .prepare(
+        `SELECT id, from_agent, to_agent, prompt, status, created_at, completed_at
+         FROM inter_agent_tasks
+         WHERE status IN ('pending', 'accepted', 'in_progress')
+            OR (status IN ('completed', 'failed') AND completed_at > datetime('now', '-1 hour'))
+         ORDER BY created_at DESC
+         LIMIT 50`,
+      )
+      .all() as InterAgentTask[];
+
+    const lines: string[] = [
+      '# Team Board',
+      '',
+      `_Обновлено: ${new Date().toISOString()}_`,
+      '',
+    ];
+
+    if (tasks.length === 0) {
+      lines.push('Нет активных задач.');
+    } else {
+      lines.push('| Статус | От | Кому | Задача | Время |');
+      lines.push('|--------|-----|------|--------|-------|');
+      for (const t of tasks) {
+        const emoji = STATUS_EMOJI[t.status] ?? '❓';
+        const taskPreview = t.prompt.length > 60 ? t.prompt.slice(0, 60) + '...' : t.prompt;
+        const time = t.completed_at ?? t.created_at;
+        lines.push(`| ${emoji} ${t.status} | ${t.from_agent} | ${t.to_agent} | ${taskPreview} | ${time} |`);
+      }
+    }
+
+    lines.push('');
+    fs.writeFileSync(path.join(STORE_DIR, 'team-board.md'), lines.join('\n'), 'utf-8');
+  } catch (err) {
+    logger.warn({ err }, 'Failed to sync team board');
+  }
+}
+
+// ── Scheduled Chains ────────────────────────────────────────────────
+
+export interface ChainStep {
+  agent_id: string;
+  prompt_template: string; // May contain {{prev_result}} placeholder
+}
+
+export interface ScheduledChain {
+  id: string;
+  name: string;
+  cron: string;
+  steps: ChainStep[];
+  enabled: number;
+  last_run_at: string | null;
+  last_status: string | null;
+  last_result: string | null;
+  created_at: string;
+}
+
+export function createScheduledChain(
+  id: string,
+  name: string,
+  cron: string,
+  steps: ChainStep[],
+): void {
+  db.prepare(
+    `INSERT INTO scheduled_chains (id, name, cron, steps, enabled, created_at)
+     VALUES (?, ?, ?, ?, 1, datetime('now'))`,
+  ).run(id, name, cron, JSON.stringify(steps));
+}
+
+export function getScheduledChains(enabledOnly = true): ScheduledChain[] {
+  const rows = enabledOnly
+    ? db.prepare('SELECT * FROM scheduled_chains WHERE enabled = 1 ORDER BY created_at').all()
+    : db.prepare('SELECT * FROM scheduled_chains ORDER BY created_at').all();
+  return (rows as Array<Omit<ScheduledChain, 'steps'> & { steps: string }>).map((r) => ({
+    ...r,
+    steps: JSON.parse(r.steps) as ChainStep[],
+  }));
+}
+
+export function updateChainRun(
+  id: string,
+  status: 'running' | 'completed' | 'failed',
+  result?: string,
+): void {
+  db.prepare(
+    `UPDATE scheduled_chains SET last_run_at = datetime('now'), last_status = ?, last_result = ? WHERE id = ?`,
+  ).run(status, result?.slice(0, 2000) ?? null, id);
+}
+
+export function deleteScheduledChain(id: string): void {
+  db.prepare('DELETE FROM scheduled_chains WHERE id = ?').run(id);
+}
+
+export function toggleScheduledChain(id: string, enabled: boolean): void {
+  db.prepare('UPDATE scheduled_chains SET enabled = ? WHERE id = ?').run(enabled ? 1 : 0, id);
 }

@@ -1,4 +1,4 @@
-import { agentObsidianConfig, GOOGLE_API_KEY } from './config.js';
+import { AGENT_ID, agentObsidianConfig } from './config.js';
 import {
   decayMemories,
   getRecentConsolidations,
@@ -12,6 +12,7 @@ import {
   touchMemory,
 } from './db.js';
 import { embedText } from './embeddings.js';
+import { loadHandoffSnapshot, formatHandoffContext, consumeHandoffSnapshot } from './handoff.js';
 import { logger } from './logger.js';
 import { ingestConversationTurn } from './memory-ingest.js';
 import { buildObsidianContext } from './obsidian.js';
@@ -35,22 +36,18 @@ export async function buildMemoryContext(
 
   // Embed the query for vector search (async, adds ~200ms but gives semantic results)
   let queryEmbedding: number[] | undefined;
-  if (GOOGLE_API_KEY) {
-    try {
-      queryEmbedding = await embedText(userMessage);
-    } catch {
-      // Embedding failure is non-fatal; falls back to keyword search
-    }
+  try {
+    queryEmbedding = await embedText(userMessage);
+  } catch {
+    // Embedding failure is non-fatal; falls back to keyword search
   }
 
   // Layer 1: semantic search (embedding) with FTS5/LIKE fallback
-  const searched = searchMemories(chatId, userMessage, 5, queryEmbedding);
+  const searched = searchMemories(chatId, userMessage, 5, queryEmbedding, AGENT_ID);
   for (const mem of searched) {
     seen.add(mem.id);
     touchMemory(mem.id);
-    const topics = safeParse(mem.topics);
-    const topicStr = topics.length > 0 ? ` (${topics.join(', ')})` : '';
-    memLines.push(`- [${mem.importance.toFixed(1)}] ${mem.summary}${topicStr}`);
+    memLines.push(formatMemoryLine(mem));
   }
 
   // Layer 2: recent high-importance memories (deduplicated)
@@ -59,9 +56,7 @@ export async function buildMemoryContext(
     if (seen.has(mem.id)) continue;
     seen.add(mem.id);
     touchMemory(mem.id);
-    const topics = safeParse(mem.topics);
-    const topicStr = topics.length > 0 ? ` (${topics.join(', ')})` : '';
-    memLines.push(`- [${mem.importance.toFixed(1)}] ${mem.summary}${topicStr}`);
+    memLines.push(formatMemoryLine(mem));
   }
 
   // Layer 3: consolidation insights
@@ -79,11 +74,25 @@ export async function buildMemoryContext(
     }
   }
 
-  if (memLines.length === 0 && insightLines.length === 0 && !agentObsidianConfig) {
+  // Layer 0: Handoff snapshot from previous session (one-time injection)
+  const handoff = loadHandoffSnapshot();
+  let handoffBlock = '';
+  if (handoff) {
+    handoffBlock = formatHandoffContext(handoff);
+    consumeHandoffSnapshot();
+    logger.info('Handoff snapshot injected into memory context');
+  }
+
+  if (memLines.length === 0 && insightLines.length === 0 && !agentObsidianConfig && !handoffBlock) {
     return '';
   }
 
   const parts: string[] = [];
+
+  // Handoff goes first — most important context for session continuity
+  if (handoffBlock) {
+    parts.push(handoffBlock);
+  }
 
   if (memLines.length > 0 || insightLines.length > 0) {
     const blocks: string[] = ['[Memory context]'];
@@ -128,7 +137,7 @@ export function saveConversationTurn(
     logger.error({ err }, 'Failed to log conversation turn');
   }
 
-  // Fire-and-forget: LLM-powered memory extraction via Gemini
+  // Fire-and-forget: LLM-powered memory extraction via OpenAI GPT-4.1-mini
   // This runs async and never blocks the user's response
   void ingestConversationTurn(chatId, userMessage, claudeResponse).catch((err) => {
     logger.error({ err }, 'Memory ingestion fire-and-forget failed');
@@ -157,6 +166,22 @@ export function runDecaySweep(): void {
       'Retention pruning complete',
     );
   }
+}
+
+/** Type labels for memory context display */
+const TYPE_LABELS: Record<string, string> = {
+  fact: 'fact',
+  decision: 'decision',
+  event: 'event',
+};
+
+/** Format a single memory line with type label and topics */
+function formatMemoryLine(mem: { importance: number; summary: string; topics: string; memory_type?: string }): string {
+  const topics = safeParse(mem.topics);
+  const topicStr = topics.length > 0 ? ` (${topics.join(', ')})` : '';
+  const typeLabel = TYPE_LABELS[mem.memory_type ?? ''];
+  const typeStr = typeLabel ? ` [${typeLabel}]` : '';
+  return `- [${mem.importance.toFixed(1)}]${typeStr} ${mem.summary}${topicStr}`;
 }
 
 /** Safely parse a JSON array string, returning [] on failure. */

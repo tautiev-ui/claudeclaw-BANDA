@@ -1,15 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
 
-// Mock the config module before importing gemini
-vi.mock('./config.js', () => ({
-  GOOGLE_API_KEY: 'test-key-123',
-}));
-
 vi.mock('./logger.js', () => ({
   logger: { warn: vi.fn(), error: vi.fn(), info: vi.fn(), debug: vi.fn() },
 }));
 
-import { parseJsonResponse } from './gemini.js';
+import { parseJsonResponse } from './extraction.js';
 
 describe('parseJsonResponse', () => {
   it('parses valid JSON', () => {

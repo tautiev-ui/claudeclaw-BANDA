@@ -1,6 +1,6 @@
 import { query } from '@anthropic-ai/claude-agent-sdk';
 
-import { PROJECT_ROOT, agentCwd } from './config.js';
+import { PROJECT_ROOT, agentCwd, agentSystemPrompt } from './config.js';
 import { readEnvFile } from './env.js';
 import { logger } from './logger.js';
 
@@ -33,27 +33,42 @@ export interface AgentProgressEvent {
   description: string;
 }
 
-/** Map SDK tool names to human-readable labels. */
+/** Map SDK tool names to Russian descriptive labels (what the bot is doing). */
 const TOOL_LABELS: Record<string, string> = {
-  Read: 'Reading file',
-  Write: 'Writing file',
-  Edit: 'Editing file',
-  Bash: 'Running command',
-  Grep: 'Searching code',
-  Glob: 'Finding files',
-  WebSearch: 'Web search',
-  WebFetch: 'Fetching page',
-  Agent: 'Sub-agent',
-  NotebookEdit: 'Editing notebook',
-  AskUserQuestion: 'User question',
+  Read: 'Читаю файл',
+  Write: 'Пишу файл',
+  Edit: 'Редактирую файл',
+  Bash: 'Выполняю команду',
+  Grep: 'Ищу в коде',
+  Glob: 'Ищу файлы',
+  WebSearch: 'Ищу в интернете',
+  WebFetch: 'Загружаю страницу',
+  Agent: 'Запускаю подзадачу',
+  NotebookEdit: 'Редактирую ноутбук',
+  AskUserQuestion: 'Готовлю вопрос',
+  Skill: 'Использую скилл',
+  EnterPlanMode: 'Планирую',
+  ExitPlanMode: 'План готов',
 };
 
-function toolLabel(toolName: string): string {
+/** Tools that should NEVER be surfaced to Telegram — internal state management noise. */
+const SILENT_TOOLS = new Set([
+  'TodoWrite',
+  'TodoRead',
+  'Task',
+  'TaskOutput',
+  'TaskStop',
+  'EnterWorktree',
+]);
+
+function toolLabel(toolName: string): string | null {
+  // Silent tools — never show to user
+  if (SILENT_TOOLS.has(toolName)) return null;
   if (TOOL_LABELS[toolName]) return TOOL_LABELS[toolName];
-  // MCP tools: mcp__server__tool → "server: tool"
+  // MCP tools: mcp__server__tool → "Работаю с server: tool"
   if (toolName.startsWith('mcp__')) {
     const parts = toolName.split('__');
-    return parts.length >= 3 ? `${parts[1]}: ${parts.slice(2).join(' ')}` : toolName;
+    return parts.length >= 3 ? `Работаю с ${parts[1]}: ${parts.slice(2).join(' ')}` : toolName;
   }
   return toolName;
 }
@@ -130,9 +145,15 @@ export async function runAgent(
   let lastCallCacheRead = 0;
   let lastCallInputTokens = 0;
 
-  // Refresh typing indicator on an interval while Claude works.
-  // Telegram's "typing..." action expires after ~5s.
-  const typingInterval = setInterval(onTyping, 4000);
+  // Track subagent delegation depth. While inDelegation > 0, tool_active
+  // progress events are suppressed — the subagent bots report their own
+  // progress via send-as-agent.sh. Only lifecycle events (task_started,
+  // task_completed) are surfaced to avoid noise in Telegram.
+  let inDelegation = 0;
+
+  // Typing indicator is managed by the caller (bot.ts).
+  // Calling onTyping once at start to ensure immediate feedback.
+  onTyping();
 
   try {
     logger.info(
@@ -159,6 +180,11 @@ export async function runAgent(
 
         // Pass secrets to the subprocess without polluting our own process.env
         env: sdkEnv,
+
+        // System prompt — loaded from CLAUDE.md at startup.
+        // Passed explicitly so sub-agents don't inherit the root CLAUDE.md
+        // via settingSources directory-walking.
+        ...(agentSystemPrompt ? { systemPrompt: agentSystemPrompt } : {}),
 
         // Model override (e.g. 'claude-haiku-4-5', 'claude-sonnet-4-5')
         ...(model ? { model } : {}),
@@ -198,26 +224,60 @@ export async function runAgent(
         if (callInputTokens > 0) {
           lastCallInputTokens = callInputTokens;
         }
+
+        // Extract tool_use blocks from assistant message — emit progress at tool START
+        // This fires immediately when Claude decides to use a tool, not after execution.
+        // Silent tools (TodoWrite etc.) return null and are skipped.
+        // When subagents are running (inDelegation > 0), suppress tool_active events
+        // to avoid noise — the subagent bots report their own progress via Telegram.
+        if (onProgress && inDelegation === 0) {
+          const content = (ev['message'] as Record<string, unknown>)?.['content'] as Array<Record<string, unknown>> | undefined;
+          if (content) {
+            for (const block of content) {
+              if (block['type'] === 'tool_use') {
+                const name = (block['name'] as string) ?? 'unknown';
+                const label = toolLabel(name);
+                if (label) {
+                  onProgress({ type: 'tool_active', description: label });
+                }
+              }
+            }
+          }
+        }
       }
 
-      // Tool progress events — surface to dashboard (not Telegram to avoid spam)
-      if (ev['type'] === 'tool_progress' && onProgress) {
+      // Tool progress events — during long-running tool execution
+      // Suppressed while subagents are running (inDelegation > 0).
+      if (ev['type'] === 'tool_progress' && onProgress && inDelegation === 0) {
         const name = (ev['tool_name'] as string) ?? 'unknown';
-        onProgress({ type: 'tool_active', description: toolLabel(name) });
+        const label = toolLabel(name);
+        if (label) {
+          onProgress({ type: 'tool_active', description: label });
+        }
       }
 
-      // Sub-agent lifecycle events — surface to Telegram for user feedback
-      if (ev['type'] === 'system' && ev['subtype'] === 'task_started' && onProgress) {
-        const desc = (ev['description'] as string) ?? 'Sub-agent started';
-        onProgress({ type: 'task_started', description: desc });
+      // Sub-agent lifecycle events — surface to Telegram for user feedback (Russian)
+      // Track delegation depth: increment on task_started, decrement on task_notification.
+      // While inDelegation > 0, tool_active events are suppressed above.
+      if (ev['type'] === 'system' && ev['subtype'] === 'task_started') {
+        inDelegation++;
+        if (onProgress) {
+          const desc = (ev['description'] as string) ?? '';
+          onProgress({ type: 'task_started', description: desc ? `Запускаю подзадачу: ${desc}` : 'Запускаю подзадачу' });
+        }
       }
-      if (ev['type'] === 'system' && ev['subtype'] === 'task_notification' && onProgress) {
-        const summary = (ev['summary'] as string) ?? 'Sub-agent finished';
-        const status = (ev['status'] as string) ?? 'completed';
-        onProgress({
-          type: 'task_completed',
-          description: status === 'failed' ? `Failed: ${summary}` : summary,
-        });
+      if (ev['type'] === 'system' && ev['subtype'] === 'task_notification') {
+        inDelegation = Math.max(0, inDelegation - 1);
+        if (onProgress) {
+          const summary = (ev['summary'] as string) ?? '';
+          const status = (ev['status'] as string) ?? 'completed';
+          onProgress({
+            type: 'task_completed',
+            description: status === 'failed'
+              ? `Подзадача не удалась: ${summary}`
+              : summary ? `Подзадача завершена: ${summary}` : 'Подзадача завершена',
+          });
+        }
       }
 
       if (ev['type'] === 'result') {
@@ -262,7 +322,7 @@ export async function runAgent(
     }
     throw err;
   } finally {
-    clearInterval(typingInterval);
+    // no-op: typing interval is managed by caller
   }
 
   return { text: resultText, newSessionId, usage };

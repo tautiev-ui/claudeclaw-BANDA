@@ -1,3 +1,4 @@
+import { execFile } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
@@ -17,11 +18,13 @@ import {
   agentSystemPrompt,
   TYPING_REFRESH_MS,
   AGENT_TIMEOUT_MS,
+  PROJECT_ROOT,
 } from './config.js';
-import { clearSession, getRecentConversation, getRecentMemories, getRecentTaskOutputs, getSession, getSessionConversation, logToHiveMind, setSession, lookupWaChatId, saveWaMessageMap, saveTokenUsage } from './db.js';
+import { clearSession, getRecentConversation, getRecentMemories, getRecentTaskOutputs, getSession, getSessionConversation, getSessionBaseline, setSessionBaseline, logToHiveMind, setSession, lookupWaChatId, saveWaMessageMap, saveTokenUsage } from './db.js';
 import { logger } from './logger.js';
 import { downloadMedia, buildPhotoMessage, buildDocumentMessage, buildVideoMessage } from './media.js';
 import { buildMemoryContext, saveConversationTurn } from './memory.js';
+import { createHandoffSnapshot } from './handoff.js';
 import { messageQueue } from './message-queue.js';
 import { parseDelegation, delegateToAgent, getAvailableAgents } from './orchestrator.js';
 import { emitChatEvent, setProcessing, setActiveAbort, abortActiveQuery } from './state.js';
@@ -35,8 +38,11 @@ import { emitChatEvent, setProcessing, setActiveAbort, abortActiveQuery } from '
 // MCP tools) can be 200-400k+ tokens. We track that baseline per session
 // so the warning reflects conversation growth, not fixed overhead.
 const CONTEXT_WARN_PCT = 0.75; // Warn when conversation fills 75% of available space
+const CONTEXT_AUTO_RESET_PCT = 0.80; // Auto-reset session when conversation fills 80% of available space
 const lastUsage = new Map<string, UsageInfo>();
-const sessionBaseline = new Map<string, number>(); // sessionId -> first turn's input_tokens
+// sessionBaseline is now persisted in SQLite (sessions.baseline_tokens)
+// so it survives process restarts. In-memory cache for fast reads:
+const baselineCache = new Map<string, number>();
 
 /**
  * Check if context usage is getting high and return a warning string, or null.
@@ -53,14 +59,22 @@ function checkContextWarning(chatId: string, sessionId: string | undefined, usag
   if (contextTokens <= 0) return null;
 
   // Record baseline on first turn of session (system prompt overhead)
+  // Uses SQLite for persistence + in-memory cache for speed
   const baseKey = sessionId ?? chatId;
-  if (!sessionBaseline.has(baseKey)) {
-    sessionBaseline.set(baseKey, contextTokens);
-    // First turn — no warning, just establishing baseline
-    return null;
+  if (!baselineCache.has(baseKey)) {
+    // Try to load from SQLite (survives restarts)
+    const persisted = getSessionBaseline(chatId);
+    if (persisted !== undefined) {
+      baselineCache.set(baseKey, persisted);
+    } else {
+      // First turn ever for this session — record baseline
+      baselineCache.set(baseKey, contextTokens);
+      setSessionBaseline(chatId, contextTokens);
+      return null;
+    }
   }
 
-  const baseline = sessionBaseline.get(baseKey)!;
+  const baseline = baselineCache.get(baseKey)!;
   const available = CONTEXT_LIMIT - baseline;
   if (available <= 0) return null;
 
@@ -73,6 +87,65 @@ function checkContextWarning(chatId: string, sessionId: string | undefined, usag
 
   return null;
 }
+
+/**
+ * Check if context usage is high enough to trigger automatic session reset.
+ * Returns true when conversation fills >= CONTEXT_AUTO_RESET_PCT of available space.
+ */
+function shouldAutoReset(chatId: string, sessionId: string | undefined, usage: UsageInfo): boolean {
+  if (usage.didCompact) return true; // Always auto-reset after compaction
+
+  const contextTokens = usage.lastCallInputTokens;
+  if (contextTokens <= 0) return false;
+
+  const baseKey = sessionId ?? chatId;
+  const baseline = baselineCache.get(baseKey) ?? getSessionBaseline(chatId);
+  if (baseline === undefined) return false;
+
+  const available = CONTEXT_LIMIT - baseline;
+  if (available <= 0) return false;
+
+  const conversationTokens = contextTokens - baseline;
+  const pct = conversationTokens / available;
+
+  return pct >= CONTEXT_AUTO_RESET_PCT;
+}
+
+/**
+ * Automatically reset session: create handoff snapshot, clear session, notify.
+ * Used when context reaches threshold or compaction is detected.
+ */
+async function autoResetSession(
+  chatIdStr: string,
+  trigger: 'compaction' | 'threshold',
+  sendMessage: (text: string) => Promise<void>,
+): Promise<void> {
+  const triggerLabel = trigger === 'compaction' ? 'auto-compaction' : `${Math.round(CONTEXT_AUTO_RESET_PCT * 100)}% context`;
+
+  try {
+    // 1. Create handoff snapshot (await, not fire-and-forget — this is critical)
+    const snapshot = await createHandoffSnapshot(chatIdStr, trigger === 'compaction' ? 'compaction' : 'newchat');
+    const topicInfo = snapshot?.currentTopic ? ` Topic: ${snapshot.currentTopic}` : '';
+
+    // 2. Clear session
+    clearSession(chatIdStr, AGENT_ID);
+    baselineCache.delete(chatIdStr);
+
+    // 3. Notify user
+    await sendMessage(
+      `🔄 Сессия сброшена автоматически (${triggerLabel}). Handoff сохранён.${topicInfo}\nСледующее сообщение начнёт свежую сессию с контекстом.`,
+    );
+
+    logger.info({ chatId: chatIdStr, trigger, topic: snapshot?.currentTopic?.slice(0, 60) }, 'Auto-reset: session cleared with handoff');
+  } catch (err) {
+    logger.error({ err, chatId: chatIdStr, trigger }, 'Auto-reset failed');
+    // Fallback: at least warn the user
+    await sendMessage(
+      `⚠️ Контекст переполнен (${triggerLabel}), но автосброс не удался. Используй /newchat + /respin вручную.`,
+    ).catch(() => {});
+  }
+}
+
 import {
   downloadTelegramFile,
   transcribeAudio,
@@ -336,8 +409,10 @@ async function handleMessage(ctx: Context, message: string, forceVoiceReply = fa
         },
       );
 
-      const response = delegationResult.text?.trim() || 'Agent completed with no output.';
-      const header = `[${delegationResult.agentId} — ${Math.round(delegationResult.durationMs / 1000)}s]`;
+      void ctx.reply('📝 Получил результат от агента, формирую ответ...').catch(() => {});
+
+      const response = delegationResult.text?.trim() || 'Агент завершил без результата.';
+      const header = `[${delegationResult.agentId} — ${Math.round(delegationResult.durationMs / 1000)}с]`;
 
       if (!skipLog) {
         saveConversationTurn(chatIdStr, message, response, undefined, AGENT_ID);
@@ -360,7 +435,8 @@ async function handleMessage(ctx: Context, message: string, forceVoiceReply = fa
   // Build memory context and prepend to message
   const memCtx = await buildMemoryContext(chatIdStr, message);
   const parts: string[] = [];
-  if (agentSystemPrompt) parts.push(`[Agent role — follow these instructions]\n${agentSystemPrompt}\n[End agent role]`);
+  // Agent system prompt is loaded automatically by Claude SDK via settingSources: ['project']
+  // from the agent's CLAUDE.md in agentCwd. No need to inject it manually.
   if (memCtx) parts.push(memCtx);
 
   // Inject recent scheduled task outputs so the user can reply to them naturally.
@@ -389,7 +465,11 @@ async function handleMessage(ctx: Context, message: string, forceVoiceReply = fa
   setProcessing(chatIdStr, true);
 
   try {
-    // Progress callback: surface sub-agent lifecycle events to Telegram + SSE
+    // Progress callback: surface agent activity to Telegram + SSE
+    // Throttle tool_active messages to max 1 per 5 seconds for responsive feedback
+    let lastToolMsg = 0;
+    const TOOL_THROTTLE_MS = 5_000;
+
     const onProgress = (event: AgentProgressEvent) => {
       if (event.type === 'task_started') {
         emitChatEvent({ type: 'progress', chatId: chatIdStr, description: event.description });
@@ -398,8 +478,13 @@ async function handleMessage(ctx: Context, message: string, forceVoiceReply = fa
         emitChatEvent({ type: 'progress', chatId: chatIdStr, description: event.description });
         void ctx.reply(`✓ ${event.description}`).catch(() => {});
       } else if (event.type === 'tool_active') {
-        // Dashboard only — don't spam Telegram with every tool use
         emitChatEvent({ type: 'progress', chatId: chatIdStr, description: event.description });
+        // Throttled tool progress to Telegram
+        const now = Date.now();
+        if (now - lastToolMsg >= TOOL_THROTTLE_MS) {
+          lastToolMsg = now;
+          void ctx.reply(`⚙️ ${event.description}`).catch(() => {});
+        }
       }
     };
 
@@ -517,9 +602,15 @@ async function handleMessage(ctx: Context, message: string, forceVoiceReply = fa
         logger.error({ err: dbErr }, 'Failed to save token usage');
       }
 
-      const warning = checkContextWarning(chatIdStr, activeSessionId, result.usage);
-      if (warning) {
-        await ctx.reply(warning);
+      // Auto-reset session on compaction or high context usage
+      if (shouldAutoReset(chatIdStr, activeSessionId, result.usage)) {
+        const trigger = result.usage.didCompact ? 'compaction' : 'threshold';
+        await autoResetSession(chatIdStr, trigger, async (text) => { await ctx.reply(text); });
+      } else {
+        const warning = checkContextWarning(chatIdStr, activeSessionId, result.usage);
+        if (warning) {
+          await ctx.reply(warning);
+        }
       }
     }
 
@@ -530,18 +621,14 @@ async function handleMessage(ctx: Context, message: string, forceVoiceReply = fa
     setProcessing(chatIdStr, false);
     logger.error({ err }, 'Agent error');
 
-    // Detect context window exhaustion (process exits with code 1 after long sessions)
+    // Detect context window exhaustion — auto-reset instead of just warning
     const errMsg = err instanceof Error ? err.message : String(err);
     if (errMsg.includes('exited with code 1')) {
       const usage = lastUsage.get(chatIdStr);
       const contextSize = usage?.lastCallInputTokens || usage?.lastCallCacheRead || 0;
       if (contextSize > 0) {
-        // We have prior usage data — context exhaustion is plausible
-        await ctx.reply(
-          `Context window likely exhausted. Last known context: ~${Math.round(contextSize / 1000)}k tokens.\n\nUse /newchat to start fresh, then /respin to pull recent conversation back in.`,
-        );
+        await autoResetSession(chatIdStr, 'compaction', async (text) => { await ctx.reply(text); });
       } else {
-        // No prior usage — likely a subprocess init failure, not context exhaustion
         await ctx.reply('Claude Code subprocess failed to start. Check logs or try /newchat.');
       }
     } else {
@@ -615,6 +702,7 @@ export function createBot(): Bot {
     { command: 'start', description: 'Start the bot' },
     { command: 'help', description: 'Help -- list available commands' },
     { command: 'newchat', description: 'Start a new Claude session' },
+    { command: 'restart', description: 'Rebuild and restart the bot' },
     { command: 'respin', description: 'Reload recent context' },
     { command: 'voice', description: 'Toggle voice mode on/off' },
     { command: 'model', description: 'Switch model (opus/sonnet/haiku)' },
@@ -639,6 +727,7 @@ export function createBot(): Bot {
     return ctx.reply(
       'ClaudeClaw — Commands\n\n' +
       '/newchat — Start a new Claude session\n' +
+      '/restart — Rebuild and restart the bot\n' +
       '/respin — Reload recent context\n' +
       '/voice — Toggle voice mode on/off\n' +
       '/model — Switch model (opus/sonnet/haiku)\n' +
@@ -681,7 +770,7 @@ export function createBot(): Bot {
     // Auto-commit session summary to hive mind (async, don't block the user)
     if (oldSessionId) {
       const sessionToSummarize = oldSessionId;
-      sessionBaseline.delete(oldSessionId);
+      baselineCache.delete(oldSessionId);
 
       // Fire-and-forget: ask the agent to produce a one-liner summary
       (async () => {
@@ -717,10 +806,58 @@ export function createBot(): Bot {
       })();
     }
 
+    // Save handoff snapshot before clearing (fire-and-forget)
+    void createHandoffSnapshot(chatIdStr, 'newchat').catch((err) =>
+      logger.error({ err }, 'Handoff snapshot failed on /newchat'),
+    );
+
     clearSession(chatIdStr, AGENT_ID);
-    sessionBaseline.delete(chatIdStr);
-    await ctx.reply('Session cleared. Starting fresh.');
+    baselineCache.delete(chatIdStr);
+    await ctx.reply('Session cleared. Handoff snapshot saved.');
     logger.info({ chatId: ctx.chat!.id }, 'Session cleared by user');
+  });
+
+  // /restart — build, save handoff, exit (launchd auto-restarts)
+  bot.command('restart', async (ctx) => {
+    if (!isAuthorised(ctx.chat!.id)) return;
+    const chatIdStr = ctx.chat!.id.toString();
+
+    await ctx.reply('Rebuilding and restarting...');
+
+    // 1. Build the project
+    try {
+      await new Promise<void>((resolve, reject) => {
+        execFile('npm', ['run', 'build'], { cwd: PROJECT_ROOT, timeout: 60_000 }, (err, stdout, stderr) => {
+          if (err) {
+            logger.error({ err, stderr }, 'Build failed during restart');
+            reject(err);
+          } else {
+            logger.info('Build succeeded for restart');
+            resolve();
+          }
+        });
+      });
+    } catch {
+      await ctx.reply('Build failed. Restart aborted. Check logs.');
+      return;
+    }
+
+    // 2. Save handoff snapshot
+    try {
+      await createHandoffSnapshot(chatIdStr, 'manual');
+    } catch (err) {
+      logger.warn({ err }, 'Handoff snapshot failed during restart (non-fatal)');
+    }
+
+    // 3. Clear session so new process starts fresh
+    clearSession(chatIdStr, AGENT_ID);
+
+    await ctx.reply('Build OK. Restarting now...');
+    logToHiveMind(AGENT_ID, chatIdStr, 'restart', 'Self-restart initiated by user');
+    logger.info('Self-restart initiated by user');
+
+    // 4. Exit — launchd (KeepAlive: true) will restart the process
+    setTimeout(() => process.exit(0), 500);
   });
 
   // /respin — after /newchat, pull recent conversation back as context
@@ -902,7 +1039,10 @@ export function createBot(): Bot {
     }
     const chatIdStr = ctx.chat!.id.toString();
     const base = DASHBOARD_URL || `http://localhost:${DASHBOARD_PORT}`;
-    const url = `${base}/?token=${DASHBOARD_TOKEN}&chatId=${chatIdStr}`;
+    // Use time-limited token (rotates hourly) instead of raw DASHBOARD_TOKEN
+    const { generateDashboardToken } = await import('./dashboard.js');
+    const tempToken = generateDashboardToken();
+    const url = `${base}/?token=${tempToken}&chatId=${chatIdStr}`;
     await ctx.reply(`<a href="${url}">Open Dashboard</a>`, { parse_mode: 'HTML' });
   });
 
@@ -952,7 +1092,7 @@ export function createBot(): Bot {
   });
 
   // Text messages — and any slash commands not owned by this bot (skills, e.g. /todo /gmail)
-  const OWN_COMMANDS = new Set(['/start', '/help', '/newchat', '/respin', '/voice', '/model', '/memory', '/forget', '/chatid', '/wa', '/slack', '/dashboard', '/stop', '/agents', '/delegate']);
+  const OWN_COMMANDS = new Set(['/start', '/help', '/newchat', '/respin', '/restart', '/voice', '/model', '/memory', '/forget', '/chatid', '/wa', '/slack', '/dashboard', '/stop', '/agents', '/delegate']);
   bot.on('message:text', async (ctx) => {
     const text = ctx.message.text;
     const chatIdStr = ctx.chat!.id.toString();
@@ -1276,7 +1416,7 @@ async function processDashboardMessage(
   try {
     const memCtx = await buildMemoryContext(chatIdStr, text);
     const dashParts: string[] = [];
-    if (agentSystemPrompt) dashParts.push(`[Agent role — follow these instructions]\n${agentSystemPrompt}\n[End agent role]`);
+    // Agent system prompt loaded by SDK via settingSources — not injected manually
     if (memCtx) dashParts.push(memCtx);
 
     const recentDashTasks = getRecentTaskOutputs(AGENT_ID, 30);
@@ -1361,6 +1501,15 @@ async function processDashboardMessage(
         );
       } catch (dbErr) {
         logger.error({ err: dbErr }, 'Failed to save token usage');
+      }
+
+      // Auto-reset session on compaction or high context usage
+      if (shouldAutoReset(chatIdStr, activeSessionId, result.usage)) {
+        const trigger = result.usage.didCompact ? 'compaction' : 'threshold';
+        await autoResetSession(chatIdStr, trigger, async (text) => {
+          emitChatEvent({ type: 'assistant_message', chatId: chatIdStr, content: text, source: 'dashboard' });
+          await botApi.sendMessage(parseInt(chatIdStr), text).catch(() => {});
+        });
       }
     }
   } catch (err) {

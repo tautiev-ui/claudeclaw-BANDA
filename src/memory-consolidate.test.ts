@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('./gemini.js', () => ({
+vi.mock('./extraction.js', () => ({
   generateContent: vi.fn(),
   parseJsonResponse: vi.fn(),
 }));
@@ -17,7 +17,7 @@ vi.mock('./logger.js', () => ({
 }));
 
 import { runConsolidation } from './memory-consolidate.js';
-import { generateContent, parseJsonResponse } from './gemini.js';
+import { generateContent, parseJsonResponse } from './extraction.js';
 import {
   getUnconsolidatedMemories,
   saveConsolidation,
@@ -46,6 +46,8 @@ function makeMemory(id: number, summary: string) {
     salience: 1.0,
     consolidated: 0,
     embedding: null,
+    memory_type: 'general',
+    agent_id: 'main',
     created_at: Math.floor(Date.now() / 1000) - 3600,
     accessed_at: Math.floor(Date.now() / 1000) - 3600,
   };

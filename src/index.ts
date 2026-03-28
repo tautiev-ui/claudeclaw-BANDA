@@ -4,14 +4,17 @@ import path from 'path';
 import { loadAgentConfig, resolveAgentDir, resolveAgentClaudeMd } from './agent-config.js';
 import { createBot } from './bot.js';
 import { checkPendingMigrations } from './migrations.js';
-import { ALLOWED_CHAT_ID, activeBotToken, STORE_DIR, PROJECT_ROOT, CLAUDECLAW_CONFIG, GOOGLE_API_KEY, setAgentOverrides } from './config.js';
+import { ALLOWED_CHAT_ID, activeBotToken, STORE_DIR, PROJECT_ROOT, CLAUDECLAW_CONFIG, setAgentOverrides } from './config.js';
+import { logToHiveMind } from './db.js';
+import { readEnvFile } from './env.js';
 import { startDashboard } from './dashboard.js';
 import { initDatabase } from './db.js';
 import { logger } from './logger.js';
 import { cleanupOldUploads } from './media.js';
+import { runDailyDigest } from './daily-digest.js';
 import { runConsolidation } from './memory-consolidate.js';
 import { runDecaySweep } from './memory.js';
-import { initOrchestrator } from './orchestrator.js';
+import { initOrchestrator, checkAndRunChains } from './orchestrator.js';
 import { initScheduler } from './scheduler.js';
 import { setTelegramConnected, setBotInfo } from './state.js';
 
@@ -123,34 +126,74 @@ async function main(): Promise<void> {
   initDatabase();
   logger.info('Database ready');
 
+  // Validate API keys — warn early if memory features won't work
+  const envKeys = readEnvFile(['OPENAI_API_KEY']);
+  if (!envKeys.OPENAI_API_KEY) {
+    logger.warn(
+      '⚠️  OPENAI_API_KEY не найден в .env — память (извлечение, embeddings, консолидация, handoff) работать не будет',
+    );
+  }
+
   initOrchestrator();
 
   runDecaySweep();
   setInterval(() => runDecaySweep(), 24 * 60 * 60 * 1000);
 
-  // Memory consolidation: find patterns across recent memories every 30 minutes
-  if (ALLOWED_CHAT_ID && GOOGLE_API_KEY) {
-    // Delay first consolidation 2 minutes after startup to let things settle
+  // Memory consolidation: find patterns across recent memories every 4 hours
+  // Only main agent runs consolidation — sub-agents skip to avoid duplicate work
+  const hasOpenAIKey = !!readEnvFile(['OPENAI_API_KEY']).OPENAI_API_KEY;
+  if (ALLOWED_CHAT_ID && hasOpenAIKey && AGENT_ID === 'main') {
+    // Delay first consolidation 10 minutes after startup to let things settle
     setTimeout(() => {
       void runConsolidation(ALLOWED_CHAT_ID).catch((err) =>
         logger.error({ err }, 'Initial consolidation failed'),
       );
-    }, 2 * 60 * 1000);
+    }, 10 * 60 * 1000);
     setInterval(() => {
       void runConsolidation(ALLOWED_CHAT_ID).catch((err) =>
         logger.error({ err }, 'Periodic consolidation failed'),
       );
-    }, 30 * 60 * 1000);
-    logger.info('Memory consolidation enabled (every 30 min)');
+    }, 4 * 60 * 60 * 1000);
+    logger.info('Memory consolidation enabled (every 4 hours)');
+  }
+
+  // Daily digest: summarize the day's conversation at 23:00 Tbilisi time (GMT+4)
+  // Only main agent runs daily digest — sub-agents skip
+  if (ALLOWED_CHAT_ID && AGENT_ID === 'main') {
+    const scheduleDigest = () => {
+      const now = new Date();
+      // Target: 23:00 GMT+4 = 19:00 UTC
+      const target = new Date(now);
+      target.setUTCHours(19, 0, 0, 0);
+      // If already past 19:00 UTC today, schedule for tomorrow
+      if (now >= target) {
+        target.setDate(target.getDate() + 1);
+      }
+      const delay = target.getTime() - now.getTime();
+      logger.info({ nextRun: target.toISOString(), delayMs: delay }, 'Daily digest scheduled');
+      setTimeout(() => {
+        void runDailyDigest().catch((err) =>
+          logger.error({ err }, 'Daily digest failed'),
+        );
+        // Reschedule for next day
+        scheduleDigest();
+      }, delay);
+    };
+    scheduleDigest();
   }
 
   cleanupOldUploads();
 
   const bot = createBot();
 
-  // Dashboard only runs in the main bot process
+  // Dashboard runs in every agent process (each on its own port)
   if (AGENT_ID === 'main') {
     startDashboard(bot.api);
+  } else {
+    const agentCfg = loadAgentConfig(AGENT_ID);
+    if (agentCfg.dashboardPort) {
+      startDashboard(bot.api, agentCfg.dashboardPort);
+    }
   }
 
   if (ALLOWED_CHAT_ID) {
@@ -162,11 +205,27 @@ async function main(): Promise<void> {
     logger.warn('ALLOWED_CHAT_ID not set — scheduler disabled (no destination for results)');
   }
 
+  // Cross-agent chain scheduler — only main agent checks chains
+  if (ALLOWED_CHAT_ID && AGENT_ID === 'main') {
+    setInterval(() => checkAndRunChains(ALLOWED_CHAT_ID), 60_000);
+    logger.info('Chain scheduler enabled (checking every 60s)');
+  }
+
   const shutdown = async () => {
     logger.info('Shutting down...');
     setTelegramConnected(false);
     releaseLock();
-    await bot.stop();
+    // Timeout: if bot.stop() hangs (e.g. stuck long-polling), force exit after 5s
+    const forceExit = setTimeout(() => {
+      logger.warn('Forced shutdown after 5s timeout');
+      process.exit(1);
+    }, 5000);
+    try {
+      await bot.stop();
+    } catch {
+      // Ignore stop errors during shutdown
+    }
+    clearTimeout(forceExit);
     process.exit(0);
   };
   process.on('SIGINT', () => void shutdown());
@@ -179,6 +238,11 @@ async function main(): Promise<void> {
       setTelegramConnected(true);
       setBotInfo(botInfo.username ?? '', botInfo.first_name ?? 'ClaudeClaw');
       logger.info({ username: botInfo.username }, 'ClaudeClaw is running');
+
+      // Log startup to Hive Mind
+      if (ALLOWED_CHAT_ID) {
+        logToHiveMind(AGENT_ID, ALLOWED_CHAT_ID, 'startup', `Bot started @${botInfo.username}`);
+      }
       if (AGENT_ID === 'main') {
         console.log(`\n  ClaudeClaw online: @${botInfo.username}`);
         if (!ALLOWED_CHAT_ID) {

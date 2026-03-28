@@ -1,5 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+vi.mock('./config.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./config.js')>();
+  return {
+    ...actual,
+    AGENT_ID: 'main',
+    agentObsidianConfig: undefined,
+  };
+});
+
 vi.mock('./db.js', () => ({
   searchMemories: vi.fn(),
   getRecentHighImportanceMemories: vi.fn(),
@@ -63,6 +72,8 @@ function makeMemory(overrides: Record<string, unknown> = {}) {
     salience: 1.0,
     consolidated: 0,
     embedding: null,
+    memory_type: 'general',
+    agent_id: 'main',
     created_at: 100,
     accessed_at: 100,
     ...overrides,
