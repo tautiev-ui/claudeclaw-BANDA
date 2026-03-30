@@ -320,7 +320,7 @@ export async function delegateToAgent(
 
   // ── Fallback: in-process execution ──
 
-  // ── Intermediate progress updates (60s rule from Heisenberg) ──
+  // ── Intermediate progress updates (60s rule) ──
   // Notify boss every 60s that agent is still working. Prevents "silent work" anxiety.
   const PROGRESS_INTERVAL_MS = 60_000;
   let progressCount = 0;
@@ -552,7 +552,7 @@ export async function delegateToMultiple(
   return results;
 }
 
-// ── Summarize Before Forward (Heisenberg rule) ─────────────────────
+// ── Summarize Before Forward ─────────────────────
 
 /** Max size of prev_result before we truncate for next agent. */
 const SUMMARIZE_THRESHOLD = 4000; // ~4KB
@@ -579,7 +579,7 @@ function summarizeForForward(text: string, stepAgent: string): string {
 /**
  * Execute a scheduled chain: step1 → step2 → ... → stepN.
  * Each step's result is available to the next step via {{prev_result}}.
- * Large results are summarized before forwarding (Heisenberg: "Summarize Before Forward").
+ * Large results are summarized before forwarding.
  * Reports final result to coordinator via Telegram.
  */
 export async function runChain(
@@ -602,7 +602,7 @@ export async function runChain(
 
     logger.info({ chainId, step: i + 1, agent: step.agent_id }, `Chain step ${i + 1}/${steps.length}`);
 
-    // ── Retry logic: 1 retry per step (Heisenberg lesson #8: откат при кривом результате) ──
+    // ── Retry logic: 1 retry per step (откат при кривом результате) ──
     const MAX_RETRIES = 1;
     let lastErr: Error | null = null;
 
@@ -701,7 +701,7 @@ export function checkAndRunChains(chatId: string): void {
     if (timeMatch) {
       const hour = parseInt(timeMatch[1], 10);
       const minute = parseInt(timeMatch[2], 10);
-      // Use UTC+4 (Tbilisi)
+      // Use configured timezone
       const nowHour = (now.getUTCHours() + 4) % 24;
       const nowMinute = now.getUTCMinutes();
 

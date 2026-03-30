@@ -65,7 +65,7 @@ async function callSonnet(prompt: string): Promise<string> {
 
 /**
  * Generate and save a daily digest.
- * Called once per day (e.g. at 23:00 Tbilisi time).
+ * Called once per day (e.g. at 23:00 local time).
  */
 export async function runDailyDigest(chatId?: string): Promise<void> {
   const targetChat = chatId ?? ALLOWED_CHAT_ID;

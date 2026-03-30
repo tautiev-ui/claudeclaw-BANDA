@@ -46,7 +46,7 @@ If extracting, return JSON:
 }
 
 Type guide:
-- "fact": Personal info, preferences, identities, relationships, technical specs (e.g. "User lives in Tbilisi", "Uses Mac mini M4")
+- "fact": Personal info, preferences, identities, relationships, technical specs
 - "decision": Policies, rules, architectural choices, workflow decisions (e.g. "Use GPT-4.1-mini for extraction", "Deploy via launchd")
 - "event": What happened, completed tasks, milestones (e.g. "Fixed memory pipeline", "Installed new agent")
 - "workspace": Temporary working notes, research findings, draft data, intermediate results (e.g. "Found 5 competitors in market", "API response format documented")

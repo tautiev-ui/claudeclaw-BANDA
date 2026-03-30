@@ -157,7 +157,7 @@ async function main(): Promise<void> {
     logger.info('Memory consolidation enabled (every 4 hours)');
   }
 
-  // Daily digest: summarize the day's conversation at 23:00 Tbilisi time (GMT+4)
+  // Daily digest: summarize the day's conversation at configured time
   // Only main agent runs daily digest — sub-agents skip
   if (ALLOWED_CHAT_ID && AGENT_ID === 'main') {
     const scheduleDigest = () => {

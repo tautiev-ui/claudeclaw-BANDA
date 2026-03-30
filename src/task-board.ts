@@ -1,5 +1,5 @@
 /**
- * Task Board — файловая доска проекта (Blackboard Pattern from Heisenberg).
+ * Task Board — файловая доска проекта (Blackboard Pattern).
  *
  * Markdown-файл в data/board.md с текущими задачами и статусами.
  * Агенты обновляют доску при получении/завершении задач.
@@ -39,7 +39,7 @@ function ensureBoardFile(): void {
 }
 
 function now(): string {
-  return new Date().toLocaleString('ru-RU', { timeZone: 'Asia/Tbilisi', hour12: false });
+  return new Date().toLocaleString('en-US', { timeZone: 'YOUR_TIMEZONE', hour12: false });
 }
 
 /**

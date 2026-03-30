@@ -168,7 +168,7 @@ node "$PROJECT_ROOT/dist/schedule-cli.js" delete <id>
 
 ## Инфраструктура (знаю но не трогаю без причины)
 
-- Mac mini M4, 16GB RAM, Тбилиси
+- [YOUR_MACHINE]
 - Docker: SearxNG (8888), n8n (5678)
 - Whisper: порт 8090
 - Workspace: ~/YOUR_WORKSPACE/

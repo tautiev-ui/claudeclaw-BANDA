@@ -3,7 +3,7 @@
   "security": {
     "level": "full"
   },
-  "timezone": "Asia/Tbilisi",
+  "timezone": "YOUR_TIMEZONE",
   "timezoneOffsetMinutes": 240,
   "memory": {
     "enabled": true
