@@ -4,7 +4,7 @@
     "level": "full"
   },
   "timezone": "YOUR_TIMEZONE",
-  "timezoneOffsetMinutes": 240,
+  "timezoneOffsetMinutes": 0,
   "memory": {
     "enabled": true
   }
