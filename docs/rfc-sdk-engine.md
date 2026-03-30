@@ -23,7 +23,7 @@ Estimated scope: ~600 lines of new code across 6-8 files, delivered in 5 phases.
 
 ### 1. Subprocess overhead
 
-Every `runAgent()` call today spawns a `claude` CLI subprocess. On a Mac Mini running
+Every `runAgent()` call today spawns a `claude` CLI subprocess. On a machine running
 24/7 with scheduled tasks (4x/day mailcheck, dashboard queries), the fork+exec cost
 adds 2-5 seconds of startup latency per turn. For quick interactions ("what time is my
 next meeting?"), this dominates total response time.

@@ -216,9 +216,9 @@ npm run build
 
 ## Ссылки
 
-- 📺 YouTube: [@alekseiulianov](https://youtube.com/@alekseiulianov)
-- 📱 Telegram канал: [@ai-operacionka](https://t.me/ai_operacionka)
-- 💬 Чат AI ОПЕРАЦИОНКА: [Присоединиться](https://t.me/+your_invite_link)
+- 📺 YouTube: [YOUR_YOUTUBE_CHANNEL]
+- 📱 Telegram канал: [YOUR_TELEGRAM_CHANNEL]
+- 💬 Чат: [YOUR_COMMUNITY_LINK]
 - 🔧 Основа: [ClaudeClaw](https://github.com/earlyaidopters/claudeclaw)
 
 ---
