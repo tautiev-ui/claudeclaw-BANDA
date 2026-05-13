@@ -1,72 +1,40 @@
-# Contributing to ClaudeClaw
+# Contributing to ClaudeClaw BANDA
 
-## Adding a migration
+This repository is a BANDA starter kit / overlay, not a forked redistribution of ClaudeClaw runtime source.
 
-Use the `add-migration` skill from within Claude Code:
+## Scope
 
-```
-/add-migration
-```
+Good contributions:
 
-or write a prompt like `add a new migration`.
+- BANDA agent profiles in `overlay/agents/`;
+- setup and packaging improvements in `setup.sh`;
+- documentation, examples, screenshots, and diagrams;
+- safety checks for secrets, private paths, and attribution metadata.
 
-The skill will walk you through picking a version bump (current / patch / minor / major),
-naming the migration, and will create the migration file, update `migrations/version.json`,
-sync `package.json`, and add an entry to `CHANGELOG.md`.
+Out of scope here:
 
-After the skill finishes, open the generated file and implement the `run()` function.
+- vendoring or copying upstream ClaudeClaw source code into this repository;
+- removing upstream attribution;
+- adding real API keys, Telegram bot tokens, private chat IDs, or local machine paths.
 
-## Running tests
-
-Tests use [Vitest](https://vitest.dev). Make sure dependencies are installed first:
-
-```bash
-npm install
-```
-
-Run the full test suite once:
+## Local test
 
 ```bash
-npm test
+./setup.sh runtime/claudeclaw-test
 ```
 
-Run in watch mode during development:
+Then inspect the generated runtime directory before adding secrets:
 
 ```bash
-npm run test:watch
+cd runtime/claudeclaw-test
+find agents .claudeclaw data -maxdepth 3 -type f | sort
 ```
 
-Run with coverage report:
+## Before committing
 
 ```bash
-npm run test:coverage
+git diff --check
+bash -n setup.sh
 ```
 
-Run a specific test file:
-
-```bash
-npx vitest run src/migrations.test.ts
-```
-
-## Test layout
-
-Tests live next to the source files they cover:
-
-```
-src/
-  migrations.ts
-  migrations.test.ts
-  db.ts
-  db.test.ts
-  ...
-```
-
-Integration tests that hit external APIs (Telegram, etc.) are in files ending with `.integration.test.ts`. They are included in the normal test run but skip automatically when the required credentials are absent.
-
-## Writing tests
-
-- Use `describe` / `it` blocks. Nest `describe` blocks to group related cases.
-- Use `beforeEach` / `afterEach` for setup and teardown; clean up any temp files or mocks.
-- Mock `process.exit` with `vi.spyOn` when testing guard functions — do not let tests actually exit the process.
-- Test files that touch the file system should create a temp directory via `fs.mkdtempSync` and remove it in `afterEach`.
-- Match the style of existing tests: short, focused assertions, no commented-out code.
+Also scan changed lines for secrets and private paths. This repository is public.

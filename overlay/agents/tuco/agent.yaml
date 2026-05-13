@@ -1,0 +1,12 @@
+name: Tuco Salamanca
+description: Быстрый исполнитель рутинных задач - конвертация, форматирование, скрипты, проверки, мелкие фиксы
+
+telegram_bot_token_env: TUCO_BOT_TOKEN
+model: claude-haiku-4-5
+dashboard_port: 3143
+
+# Optional skill names. Install them separately in your Claude/ClaudeClaw environment.
+skills:
+  - systematic-debugging
+  - tldr
+  - timezone

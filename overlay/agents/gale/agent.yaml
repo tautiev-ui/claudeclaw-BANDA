@@ -1,0 +1,14 @@
+name: Gale Boetticher
+description: Программист-перфекционист - веб-разработка, приложения, API, архитектура, рефакторинг, тесты
+
+telegram_bot_token_env: GALE_BOT_TOKEN
+model: claude-opus-4-6
+dashboard_port: 3145
+
+# Optional skill names. Install them separately in your Claude/ClaudeClaw environment.
+skills:
+  - systematic-debugging
+  - writing-plans
+  - code-review
+  - dep-audit
+  - quality-check

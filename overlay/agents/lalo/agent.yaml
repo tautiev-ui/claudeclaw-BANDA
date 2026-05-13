@@ -1,0 +1,14 @@
+name: Lalo Salamanca
+description: Маркетолог-расследователь - тренды, контент-стратегия, конкурентный анализ, копирайтинг, воронки
+
+telegram_bot_token_env: LALO_BOT_TOKEN
+model: claude-sonnet-4-20250514
+dashboard_port: 3144
+
+# Optional skill names. Install them separately in your Claude/ClaudeClaw environment.
+skills:
+  - deep-research-pro
+  - brainstorming
+  - analytics
+  - channel-analyzer
+  - youtube-seo

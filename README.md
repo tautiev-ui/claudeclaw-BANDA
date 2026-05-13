@@ -1,6 +1,6 @@
 # 🐍 ClaudeClaw BANDA
 
-> Мультиагентная команда на Claude Code. Установи за 10 минут — получи 5 AI-агентов в Telegram.
+> MIT-licensed BANDA starter kit / overlay for building a small Telegram multi-agent team on top of ClaudeClaw.
 
 ---
 
@@ -13,258 +13,191 @@ If you found this project mirrored, repackaged, or redistributed elsewhere, chec
 
 ## Attribution / атрибуция
 
-Where permitted by the applicable license, if you reuse, fork, modify, package, or publish this work, keep the original copyright and license notice and link back to the canonical repository.
+If you reuse, fork, modify, package, or publish this BANDA starter kit, keep the original copyright and license notice and link back to the canonical repository.
 
-## Что это
+## What this repository is
 
-Готовая команда AI-агентов, каждый со своим характером, специализацией и Telegram-ботом. Работает на [ClaudeClaw](https://github.com/earlyaidopters/claudeclaw) — обёртке вокруг Claude Code CLI.
+ClaudeClaw BANDA is a starter kit for a small AI-agent team inspired by a “crew” operating model:
 
-**Не чат-бот.** Каждый агент запускает настоящий `claude` CLI на твоём Mac/Linux и отправляет результат в Telegram. Все твои файлы, скиллы и инструменты — доступны с телефона.
+- Nacho - coordinator;
+- Tuco - fast execution;
+- Lalo - marketing / investigation;
+- Gale - code / engineering;
+- Kim - quality control / documents.
+
+It is designed to run on top of [ClaudeClaw](https://github.com/earlyaidopters/claudeclaw), an external wrapper around Claude Code CLI.
+
+## Important license/provenance note
+
+The root `LICENSE` is MIT and applies only to the files contained in this repository: BANDA overlay, docs, metadata, and `setup.sh`.
+
+This repository contains **BANDA-specific overlay material only**:
+
+- `overlay/agents/` - agent profiles and configs;
+- `overlay/.claudeclaw/` - shared BANDA configuration and prompts;
+- `setup.sh` - installer that clones upstream ClaudeClaw locally and applies the overlay;
+- documentation, metadata, NOTICE, SECURITY, and examples.
+
+This repository **does not redistribute upstream ClaudeClaw source code**.
+
+At the 2026-05-13 cleanup pass, GitHub did not show a license for the upstream ClaudeClaw repository. Because of that, the MIT license here applies to BANDA-specific materials maintained by Aleksei Ulianov / Sprut_AI. It does not relicense upstream ClaudeClaw files cloned from https://github.com/earlyaidopters/claudeclaw.
+
+See: [THIRD_PARTY.md](THIRD_PARTY.md)
 
 ---
 
 ## Для кого это
 
-ClaudeClaw BANDA подходит, если ты хочешь не одного ассистента, а маленькую команду Telegram-агентов вокруг Claude Code:
+Подходит, если ты хочешь не одного ассистента, а маленькую self-hosted команду Telegram-агентов вокруг Claude Code:
 
 - быстро поднять персональную agent-команду на Mac/Linux;
 - разделить роли: координатор, исполнитель, маркетолог, программист, ОТК/юрист;
 - управлять задачами с телефона через Telegram;
-- показать подписчикам или команде живой пример multi-agent setup.
+- показать подписчикам или команде живой multi-agent setup.
 
-Не для тех, кто ищет полностью hosted SaaS. Это self-hosted starter kit: твои боты, твоя машина, твои токены, твоя ответственность за запуск.
+Не для тех, кто ищет fully hosted SaaS. Это starter kit: твои боты, твоя машина, твои токены, твоя ответственность за запуск.
 
-## Как это работает
+---
+
+## Architecture
 
 ```mermaid
 flowchart LR
-    U[Telegram user] --> N[Nacho / coordinator]
-    N --> T[Tuco / fast execution]
-    N --> L[Lalo / marketing]
-    N --> G[Gale / code]
-    N --> K[Kim / quality & docs]
-    T --> N
-    L --> N
-    G --> N
-    K --> N
-    N --> U
+    R[claudeclaw-BANDA repo] --> O[BANDA overlay]
+    O --> A[agent profiles]
+    O --> C[shared config]
+    O --> E[env template]
+    S[setup.sh] --> U[clone upstream ClaudeClaw locally]
+    S --> P[apply BANDA overlay]
+    P --> T[Telegram multi-agent runtime]
 ```
 
-## Команда
+---
 
-| Агент | Роль | Модель | Описание |
-|-------|------|--------|----------|
-| 🐍 **Начо Варгас** | Координатор | Opus | Главный. Тихий, наблюдательный, делает любую работу |
-| 🔥 **Туко Саламанка** | Исполнитель | Haiku | Быстрые задачи: конвертация, скрипты, мелкие фиксы |
-| 🎭 **Лало Саламанка** | Маркетолог | Sonnet | Тренды, контент, конкуренты, копирайтинг |
-| ☕ **Гейл Беттикер** | Программист | Opus | Код, архитектура, тесты, рефакторинг |
-| ⚖️ **Ким Уэксслер** | ОТК / Юрист | Sonnet | Проверка качества, документы, compliance |
+## Prerequisites
 
-**Архитектура по стоимости:**
-- Opus — для сложных задач (координация, код)
-- Sonnet — для средних (маркетинг, проверки)
-- Haiku — для рутины (быстро и дёшево)
+Install locally before running setup:
+
+- `git`
+- `python3`
+- Node.js 20+ and `npm`
+- Claude Code CLI: `npm install -g @anthropic-ai/claude-code`
+- Claude login: `claude login`
+- Telegram bots created via [@BotFather](https://t.me/botfather)
+
+The setup script checks `git` and `python3` directly. Node/npm and Claude Code are required when you enter the cloned upstream runtime and run it.
 
 ---
 
-## Что нужно
+## Quick start
 
-| Требование | Где взять |
-|------------|-----------|
-| Mac или Linux | — |
-| Node.js 20+ | [nodejs.org](https://nodejs.org) |
-| Claude Code CLI | `npm i -g @anthropic-ai/claude-code` |
-| Claude аккаунт | [claude.ai](https://claude.ai) (рекомендуем Max с Opus) |
-| Telegram | Любой аккаунт |
-
----
-
-## Установка за 10 минут
-
-### 1. Создай Telegram-ботов
-
-Открой [@BotFather](https://t.me/botfather) и создай ботов (по одному на агента):
-
-| Агент | Пример username |
-|-------|-----------------|
-| Начо (главный) | `@MyNachoBot` |
-| Туко | `@MyTucoBot` |
-| Лало | `@MyLaloBot` |
-| Гейл | `@MyGaleBot` |
-| Ким | `@MyKimBot` |
-
-Сохрани токены — понадобятся через минуту.
-
-### 2. Клонируй и установи
+### 1. Clone BANDA
 
 ```bash
 git clone https://github.com/AlekseiUL/claudeclaw-BANDA.git
 cd claudeclaw-BANDA
+```
+
+### 2. Create Telegram bots
+
+Open [@BotFather](https://t.me/botfather) and create bots for:
+
+- Nacho / coordinator;
+- Tuco;
+- Lalo;
+- Gale;
+- Kim.
+
+Keep tokens local. Do not commit them.
+
+### 3. Apply BANDA overlay to a local ClaudeClaw runtime
+
+```bash
+./setup.sh runtime/claudeclaw
+```
+
+The script will:
+
+1. clone upstream ClaudeClaw into `runtime/claudeclaw`;
+2. copy BANDA overlay files into that local runtime;
+3. create `.env` from `.env.example` if `.env` does not exist.
+
+### 4. Fill local `.env`
+
+```bash
+cd runtime/claudeclaw
+nano .env
+```
+
+Minimum values:
+
+```bash
+TELEGRAM_BOT_TOKEN=your_nacho_bot_token
+ALLOWED_CHAT_ID=your_telegram_chat_id
+TUCO_BOT_TOKEN=your_tuco_bot_token
+LALO_BOT_TOKEN=your_lalo_bot_token
+GALE_BOT_TOKEN=your_gale_bot_token
+KIM_BOT_TOKEN=your_kim_bot_token
+```
+
+### 5. Install and run upstream runtime
+
+Inside the cloned runtime:
+
+```bash
 npm install
-```
-
-### 3. Настрой ключи
-
-```bash
-cp .env.example .env
-```
-
-Открой `.env` и заполни:
-```
-TELEGRAM_BOT_TOKEN=твой_токен_Начо
-ALLOWED_CHAT_ID=твой_telegram_id
-TUCO_BOT_TOKEN=токен_Туко
-LALO_BOT_TOKEN=токен_Лало
-GALE_BOT_TOKEN=токен_Гейла
-KIM_BOT_TOKEN=токен_Ким
-```
-
-> Свой Telegram ID: напиши [@userinfobot](https://t.me/userinfobot) в Telegram.
-
-### 4. Залогинься в Claude
-
-```bash
-claude login
-```
-
-### 5. Запусти
-
-```bash
 npm run build
-npm start              # запуск Начо (главный)
-npm run agent:start tuco   # запуск Туко
-npm run agent:start lalo   # запуск Лало
-npm run agent:start gale   # запуск Гейла
-npm run agent:start kim    # запуск Ким
+npm start
 ```
 
-### 6. Проверь
-
-Напиши каждому боту в Telegram. Если отвечают — всё работает.
+If the upstream runtime supports `agent:start`, start the sub-agents:
 
 ```bash
-npm run status         # проверка здоровья системы
+npm run agent:start tuco
+npm run agent:start lalo
+npm run agent:start gale
+npm run agent:start kim
 ```
 
 ---
 
-## Или пусть Claude сам поставит
+## Repository structure
 
-```bash
-git clone https://github.com/AlekseiUL/claudeclaw-BANDA.git
-cd claudeclaw-BANDA
-claude
-```
-
-И скажи:
-> Прочитай README.md и .env.example. Помоги мне настроить проект — установи зависимости, помоги заполнить .env, проверь что всё работает.
-
----
-
-## Структура проекта
-
-```
+```text
 claudeclaw-BANDA/
-├── agents/           # Агенты (характер, роль, скиллы)
-│   ├── tuco/         # Туко Саламанка
-│   ├── lalo/         # Лало Саламанка
-│   ├── gale/         # Гейл Беттикер
-│   ├── kim/          # Ким Уэксслер
-│   └── _template/    # Шаблон для нового агента
-├── skills/           # Скиллы (навыки агентов)
-├── scripts/          # Утилиты и скрипты
-├── src/              # Исходный код ClaudeClaw
-├── store/            # БД и runtime (создаётся автоматически)
-├── workspace/        # Рабочая папка агентов
-├── .claudeclaw/      # Конфиг и память Начо
-├── .env.example      # Шаблон ключей
-└── package.json
+├── overlay/
+│   ├── agents/              # BANDA agent profiles
+│   ├── .claudeclaw/          # shared BANDA config and coordinator prompt
+│   ├── data/board.md         # starter task board
+│   ├── CLAUDE.md.example     # owner prompt template
+│   └── banner.txt
+├── assets/                   # public screenshots / diagrams
+├── setup.sh                  # clones upstream locally and applies overlay
+├── .env.example              # BANDA env template, no secrets
+├── LICENSE                   # MIT for BANDA-specific material
+├── NOTICE.md
+├── THIRD_PARTY.md
+└── SECURITY.md
 ```
 
 ---
 
-## Как добавить своего агента
+## Links
 
-```bash
-npm run agent:create
-```
-
-Или вручную: скопируй `agents/_template/`, заполни `agent.yaml` и `CLAUDE.md`.
-
----
-
-## Память и Hive Mind
-
-Все агенты делят **одну SQLite базу** (`store/claudeclaw.db`). Это не 5 отдельных ботов — это команда с общей памятью.
-
-### Как устроена память
-
-**3 слоя поиска:**
-1. **Vector search** — семантический поиск по смыслу (OpenAI embeddings)
-2. **FTS5 keyword** — полнотекстовый поиск (fallback если нет API ключа)
-3. **High-importance** — недавние важные воспоминания
-
-**Hive Mind** — общая доска действий:
-- Каждый агент записывает что сделал (agent_id, action, summary)
-- Другие агенты видят историю команды
-- Координатор (Начо) видит всё
-
-**Consolidation** — автосжатие:
-- Старые воспоминания сжимаются в инсайты
-- Память не растёт бесконечно
-
-**Разделение по agent_id:**
-- Каждый агент пишет со своим `agent_id`
-- При поиске видит и свои, и общие записи
-- Никто не перезаписывает чужое
-
-### OpenAI API ключ (для embeddings)
-
-Для полноценной векторной памяти нужен `OPENAI_API_KEY` в `.env`. Без него память работает через keyword search — проще, но менее точно.
-
-Получить: [platform.openai.com](https://platform.openai.com) → API keys. Стоимость: ~$0.02 за 1M токенов (практически бесплатно).
-
----
-
-## Обновление
-
-```bash
-git pull
-npm install
-npm run build
-```
-
----
-
-## FAQ
-
-**Нужен ли API ключ Anthropic?**
-Нет. Если у тебя Claude Max — используется твоя подписка через `claude login`.
-
-**Можно ли запустить только Начо без субагентов?**
-Да. `npm start` запускает только главного. Остальные — по желанию.
-
-**Что если я на Free плане Claude?**
-Работать будет, но сложные задачи (код, мультиагент) лучше на Opus (Max план).
-
-**Работает на Windows?**
-Через WSL2 — да.
-
----
-
-## Ссылки
-
-- 📺 YouTube: https://youtube.com/@alekseiulianov
-- 📱 Telegram-канал Sprut AI: https://t.me/Sprut_AI
-- 💬 Чат Telegram-канала Sprut AI: https://t.me/+eH-qNIDmud8zNDZi
+- YouTube: https://youtube.com/@alekseiulianov
+- Telegram channel Sprut AI: https://t.me/Sprut_AI
+- Telegram chat: https://t.me/+eH-qNIDmud8zNDZi
 - AI Операционка: https://t.me/tribute/app?startapp=sJyg
-- 🔧 Основа: [ClaudeClaw](https://github.com/earlyaidopters/claudeclaw)
+- Upstream tool: https://github.com/earlyaidopters/claudeclaw
 
-## Лицензия
+## License
 
-License review pending. This repository is maintained by Aleksei Ulianov / Sprut_AI, but it includes material based on ClaudeClaw (https://github.com/earlyaidopters/claudeclaw), where no GitHub license was detected during this cleanup pass. Do not remove upstream attribution.
+MIT for BANDA-specific materials.
 
+Copyright (c) 2026 Aleksei Ulianov / Sprut_AI
+
+Upstream ClaudeClaw is an external dependency/tool and is not relicensed by this repository. See [THIRD_PARTY.md](THIRD_PARTY.md).
 
 ---
 
-_"I'm not like them. I never was." — Начо Варгас_
+_"I'm not like them. I never was." — Nacho Varga_

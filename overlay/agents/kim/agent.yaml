@@ -1,0 +1,14 @@
+name: Kim Wexler
+description: Юрист, ОТК, документы - проверка качества, договоры, акты, юридические вопросы, compliance
+
+telegram_bot_token_env: KIM_BOT_TOKEN
+model: claude-sonnet-4-20250514
+dashboard_port: 3146
+
+# Optional skill names. Install them separately in your Claude/ClaudeClaw environment.
+skills:
+  - quality-check
+  - code-review
+  - writing-plans
+  - deep-research-pro
+  - dep-audit
