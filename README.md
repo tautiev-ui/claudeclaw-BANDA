@@ -23,6 +23,33 @@ Where permitted by the applicable license, if you reuse, fork, modify, package, 
 
 ---
 
+## Для кого это
+
+ClaudeClaw BANDA подходит, если ты хочешь не одного ассистента, а маленькую команду Telegram-агентов вокруг Claude Code:
+
+- быстро поднять персональную agent-команду на Mac/Linux;
+- разделить роли: координатор, исполнитель, маркетолог, программист, ОТК/юрист;
+- управлять задачами с телефона через Telegram;
+- показать подписчикам или команде живой пример multi-agent setup.
+
+Не для тех, кто ищет полностью hosted SaaS. Это self-hosted starter kit: твои боты, твоя машина, твои токены, твоя ответственность за запуск.
+
+## Как это работает
+
+```mermaid
+flowchart LR
+    U[Telegram user] --> N[Nacho / coordinator]
+    N --> T[Tuco / fast execution]
+    N --> L[Lalo / marketing]
+    N --> G[Gale / code]
+    N --> K[Kim / quality & docs]
+    T --> N
+    L --> N
+    G --> N
+    K --> N
+    N --> U
+```
+
 ## Команда
 
 | Агент | Роль | Модель | Описание |
