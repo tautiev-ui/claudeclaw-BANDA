@@ -4,6 +4,17 @@
 
 ---
 
+## Canonical source / источник
+
+This project is maintained by Aleksei Ulianov / Sprut_AI.
+Original repository: https://github.com/AlekseiUL/claudeclaw-BANDA
+
+If you found this project mirrored, repackaged, or redistributed elsewhere, check this repository as the source of truth.
+
+## Attribution / атрибуция
+
+Where permitted by the applicable license, if you reuse, fork, modify, package, or publish this work, keep the original copyright and license notice and link back to the canonical repository.
+
 ## Что это
 
 Готовая команда AI-агентов, каждый со своим характером, специализацией и Telegram-ботом. Работает на [ClaudeClaw](https://github.com/earlyaidopters/claudeclaw) — обёртке вокруг Claude Code CLI.
@@ -60,7 +71,7 @@
 ### 2. Клонируй и установи
 
 ```bash
-git clone https://github.com/ai-operacionka/claudeclaw-BANDA.git
+git clone https://github.com/AlekseiUL/claudeclaw-BANDA.git
 cd claudeclaw-BANDA
 npm install
 ```
@@ -113,7 +124,7 @@ npm run status         # проверка здоровья системы
 ## Или пусть Claude сам поставит
 
 ```bash
-git clone https://github.com/ai-operacionka/claudeclaw-BANDA.git
+git clone https://github.com/AlekseiUL/claudeclaw-BANDA.git
 cd claudeclaw-BANDA
 claude
 ```
@@ -216,10 +227,16 @@ npm run build
 
 ## Ссылки
 
-- 📺 YouTube: [YOUR_YOUTUBE_CHANNEL]
-- 📱 Telegram канал: [YOUR_TELEGRAM_CHANNEL]
-- 💬 Чат: [YOUR_COMMUNITY_LINK]
+- 📺 YouTube: https://youtube.com/@alekseiulianov
+- 📱 Telegram-канал Sprut AI: https://t.me/Sprut_AI
+- 💬 Чат Telegram-канала Sprut AI: https://t.me/+eH-qNIDmud8zNDZi
+- AI Операционка: https://t.me/tribute/app?startapp=sJyg
 - 🔧 Основа: [ClaudeClaw](https://github.com/earlyaidopters/claudeclaw)
+
+## Лицензия
+
+License review pending. This repository is maintained by Aleksei Ulianov / Sprut_AI, but it includes material based on ClaudeClaw (https://github.com/earlyaidopters/claudeclaw), where no GitHub license was detected during this cleanup pass. Do not remove upstream attribution.
+
 
 ---
 
