@@ -4,6 +4,42 @@
 
 ---
 
+## Русская версия
+
+ClaudeClaw BANDA - это starter kit для self-hosted multi-agent workflow вокруг Claude Code и Telegram.
+
+Репозиторий показывает, как собрать несколько специализированных агентов, дать им роли, Telegram routing и базовый рабочий контур. Это полезно, когда одного “умного чата” уже мало и нужны отдельные роли: research, writing, technical work, coordination и review.
+
+## Что внутри
+
+- multi-agent Telegram starter kit;
+- 5 specialist-agent roles;
+- overlay для локального ClaudeClaw runtime;
+- инструкции по созданию Telegram bots;
+- architecture notes;
+- side-effect и privacy boundaries;
+- базовые сценарии запуска.
+
+## Для кого
+
+- для self-hosted операторов;
+- для тех, кто хочет multi-agent Telegram workflow;
+- для разработчиков, которые собирают agent team вокруг Claude Code;
+- для людей, которым нужен понятный starter, а не абстрактная статья.
+
+## Что это не делает
+
+BANDA не содержит ваших Telegram tokens, private chats, production credentials или готовую hosted-инфраструктуру. Secrets нужно создавать и хранить локально. Перед public use проверьте privacy, routing и доступы.
+
+## Быстрый старт
+
+```bash
+git clone https://github.com/AlekseiUL/claudeclaw-BANDA.git
+cd claudeclaw-BANDA
+```
+
+Дальше создайте Telegram bots, примените overlay к локальному runtime и проверьте routing на безопасном тестовом чате.
+
 ## Canonical source / источник
 
 This project is maintained by Aleksei Ulianov / Sprut_AI.
