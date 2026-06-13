@@ -17,6 +17,29 @@
 <section class="otz-container otz-section">
   <div class="otz-grid-2">
     <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Репутационный паспорт</h2>
+      <p>Короткая карта состояния компании перед чтением отзывов: профиль, источники, проверка, право на ответ и коммерческая нейтральность.</p>
+      <ul>
+        <li><strong>Profile completeness:</strong> статус {{ company.profile_status }}, источников {{ company.source_count }}, методология {{ company.methodology_version|default:"not set" }};</li>
+        <li><strong>Claim / audit CTA:</strong> компания может заявить профиль или заказать аудит, но это не меняет рейтинг;</li>
+        <li><strong>Evidence locker:</strong> публичные доказательства видны ниже, приватные файлы и скриншоты не публикуются.</li>
+      </ul>
+      <p><a href="/claim-profile/">Заявить профиль</a> · <a href="/reputation-audit/">Запросить аудит</a></p>
+    </div>
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Внешний след по площадкам</h2>
+      <ul>
+        <li><strong>Yandex Maps:</strong> проверить карточку, адрес, рейтинг, свежие жалобы и ответы;</li>
+        <li><strong>2GIS:</strong> сверить контакты, филиалы, категории и локальные отзывы;</li>
+        <li><strong>Google Business:</strong> проверить консистентность NAP и международный след.</li>
+      </ul>
+      <p class="otz-muted">Внешний след — источник проверки, а не импорт чужих отзывов в рейтинг Otzoviki.</p>
+    </div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack">
       <h2 class="otz-h2">Trust summary</h2>
       <p>status: {{ company.profile_status }} · sources: {{ company.source_count }} · methodology: {{ company.methodology_version|default:"not set" }}</p>
       {% if company.last_verified_at %}<p class="otz-muted">last verified: {{ company.last_verified_at|date:"Y-m-d" }}</p>{% endif %}
@@ -43,6 +66,37 @@
       <h2 class="otz-h2">Как читать это досье</h2>
       <p>Сравнивайте отзывы Otzoviki, внешний след, официальные ответы, Yandex / AI evidence и городские услуги. Платный профиль не влияет на рейтинг, отзывы, индексацию или редакционные выводы.</p>
       <p><a href="/methodology/">Методология</a> · <a href="/review-policy/">Правила отзывов</a> · <a href="/right-of-reply/">Право на ответ</a> · <a href="/reputation-audit/">Аудит репутации</a></p>
+    </div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Review intelligence</h2>
+      <p>Что смотреть в отзывах: повторяющиеся темы по качеству, срокам, коммуникации, смете, гарантии и реакции компании на спор.</p>
+      <div class="otz-grid-2">
+        <div>
+          <h3>Плюсы</h3>
+          <ul>
+            <li>конкретные акты, адреса объектов, сроки и договор;</li>
+            <li>ответы компании с фактами и предложением решения;</li>
+            <li>совпадение заявленной услуги с городом и портфолио.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Минусы и риски</h3>
+          <ul>
+            <li>однотипные отзывы без деталей и доказательств;</li>
+            <li>жалобы на смету, скрытые платежи и срыв сроков;</li>
+            <li>нет официального ответа на существенные претензии.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Официальный ответ и следующий шаг</h2>
+      <p>Если есть спор, читайте позицию клиента, публичный внешний след и ответ компании вместе. Если ответа нет — это отдельный сигнал, но не автоматический минус без проверки.</p>
+      <p><a href="{{ company.get_absolute_url }}official-response/new/">Подать официальный ответ</a> · <a href="{{ company.get_absolute_url }}reviews/new/">Оставить отзыв</a></p>
     </div>
   </div>
 </section>

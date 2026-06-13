@@ -16,6 +16,58 @@
 <section class="otz-container otz-section">
   <div class="otz-grid-2">
     <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Фильтры выбора подрядчика</h2>
+      <p class="otz-muted">Быстрый слой отбора как на marketplace-страницах, но без скрытой рекламы и накрутки.</p>
+      <ul>
+        <li><strong>город + услуга:</strong> {{ city.name }} · {{ service.name }};</li>
+        <li><strong>тип работ:</strong> черновой, косметический, капитальный, под ключ;</li>
+        <li><strong>сигналы доверия:</strong> отзывы Otzoviki, внешний след, официальный ответ;</li>
+        <li><strong>риск-фильтр:</strong> мало источников, нет сметы, спорные отзывы, нет реквизитов.</li>
+      </ul>
+    </div>
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Ориентиры цен и сметы</h2>
+      <p>Цена не является офертой: используйте её только как контрольный диапазон перед запросом письменной сметы.</p>
+      <ul>
+        <li><strong>Черновая отделка:</strong> демонтаж, выравнивание, инженерия, подготовка стен и пола;</li>
+        <li><strong>Косметический ремонт:</strong> покрытия, покраска, простая замена материалов;</li>
+        <li><strong>Под ключ:</strong> проект, материалы, этапы оплаты, акт сдачи и гарантия.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-card otz-stack">
+    <h2 class="otz-h2">Сравнительная таблица компаний</h2>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Компания</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Рейтинг Otzoviki</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Яндекс/2ГИС/Google след</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Shortlist action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for card in company_cards %}
+          <tr>
+            <td style="padding:10px;border-bottom:1px solid #eef1ea"><a href="{{ card.company.get_absolute_url }}">{{ card.company.name }}</a></td>
+            <td style="padding:10px;border-bottom:1px solid #eef1ea">{% if card.snapshot %}{% localize off %}{{ card.snapshot.average_rating }}{% endlocalize %} / 5 · {{ card.snapshot.review_count }} отзывов{% else %}нет расчёта{% endif %}</td>
+            <td style="padding:10px;border-bottom:1px solid #eef1ea">Проверить карточки, адреса, свежесть отзывов и ответы компании</td>
+            <td style="padding:10px;border-bottom:1px solid #eef1ea"><a href="{{ card.company.get_absolute_url }}">Открыть досье</a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" style="padding:10px">Компании для сравнения скоро будут добавлены.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack">
       <h2 class="otz-h2">Что проверить перед выбором подрядчика</h2>
       <ul>
         <li>договор и смета: этапы, материалы, сроки и порядок оплаты;</li>
@@ -28,6 +80,28 @@
       <h2 class="otz-h2">Публичная методология и право на ответ</h2>
       <p>Otzoviki KZ разделяет пользовательские отзывы, внешний след и официальные ответы компаний. Платный профиль не влияет на рейтинг, порядок компаний, отзывы, индексацию или редакционные выводы.</p>
       <p><a href="/review-policy/">Правила отзывов</a> · <a href="/right-of-reply/">Право на ответ</a> · <a href="/for-business/">Для бизнеса</a></p>
+    </div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Как выбрать подрядчика</h2>
+      <ol>
+        <li>Собрать shortlist из 3–5 компаний с совпадением города и услуги.</li>
+        <li>Сравнить досье: отзывы, источник претензий, внешний след, официальный ответ.</li>
+        <li>Запросить смету с этапами, материалами, сроками, гарантией и актом сдачи.</li>
+        <li>Не платить крупный аванс без договора, реквизитов и понятного графика работ.</li>
+      </ol>
+    </div>
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Красные флаги</h2>
+      <ul>
+        <li>нет адресов объектов, реквизитов или понятной юридической стороны;</li>
+        <li>много однотипных отзывов без деталей и доказательств;</li>
+        <li>давление “только сегодня” и требование предоплаты без договора;</li>
+        <li>компания игнорирует претензии и не использует право на ответ.</li>
+      </ul>
     </div>
   </div>
 </section>

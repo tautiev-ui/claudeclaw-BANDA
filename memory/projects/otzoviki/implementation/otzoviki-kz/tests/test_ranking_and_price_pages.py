@@ -59,6 +59,14 @@ def test_ranking_page_sorts_companies_by_rating_and_is_indexable(client):
     assert "Частые вопросы о рейтинге в Алматы" in html
     assert "Почему компания выше в рейтинге?" in html
     assert "/kz/almaty/remont-kvartir/" in html
+    assert "Методология выше списка" in html
+    assert "Сравнительная таблица рейтинга" in html
+    assert "Номинация" in html
+    assert "Жалобы / риск" in html
+    assert "Ответ компании" in html
+    assert "Почему это место" in html
+    assert "лидер по проверенным отзывам" in html
+    assert "претензии проверяются" in html
 
 
 @pytest.mark.django_db
