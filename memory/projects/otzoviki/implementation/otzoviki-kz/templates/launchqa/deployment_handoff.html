@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block content %}
+<section class="otz-section otz-section--narrow">
+  <p class="otz-eyebrow">Deployment</p>
+  <h1>Deployment handoff dashboard</h1>
+  <p class="otz-lead">100-gate deployment handoff dashboard. Staff-only deployment surface. Robots: noindex,follow.</p>
+
+  <article class="otz-card otz-stack">
+    <h2>Go/no-go</h2>
+    <p>status: {{ go_no_go.status }}</p>
+    <p>failed: {{ summary.failed }}</p>
+    <p>launch_blocker_count: {{ summary.launch_blocker_count }}</p>
+    <p>manual_release_required: {{ go_no_go.manual_release_required }}</p>
+    <p>post_deploy_smoke_required: {{ go_no_go.post_deploy_smoke_required }}</p>
+  </article>
+
+  <article class="otz-card otz-stack">
+    <h2>Source links</h2>
+    <ul class="otz-list">
+      <li><a href="{{ release_readiness_url }}">{{ release_readiness_url }}</a></li>
+      <li><a href="{{ launch_blocker_json_url }}">{{ launch_blocker_json_url }}</a></li>
+      <li><a href="{{ launch_blocker_url }}">{{ launch_blocker_url }}</a></li>
+      <li><a href="{{ route_smoke_live_url }}">{{ route_smoke_live_url }}</a></li>
+      <li><a href="{{ route_smoke_json_url }}">{{ route_smoke_json_url }}</a></li>
+      <li><a href="{{ route_smoke_csv_url }}">{{ route_smoke_csv_url }}</a></li>
+      <li><a href="{{ ops_hub_url }}">{{ ops_hub_url }}</a></li>
+      <li><a href="{{ deployment_handoff_json_url }}">{{ deployment_handoff_json_url }}</a></li>
+      <li><a href="{{ deployment_handoff_csv_url }}">{{ deployment_handoff_csv_url }}</a></li>
+      <li><a href="{{ deployment_handoff_live_url }}">{{ deployment_handoff_live_url }}</a></li>
+      <li><a href="{{ submission_package_json_url }}">{{ submission_package_json_url }}</a></li>
+      <li><a href="{{ submission_package_csv_url }}">{{ submission_package_csv_url }}</a></li>
+      <li><a href="{{ submission_package_live_url }}">{{ submission_package_live_url }}</a></li>
+    </ul>
+  </article>
+
+  <article class="otz-card otz-stack">
+    <h2>Manual actions</h2>
+    <ul class="otz-list">
+      {% for action in manual_actions %}<li>{{ action }}</li>{% endfor %}
+    </ul>
+  </article>
+
+  <article class="otz-card otz-stack">
+    <h2>Pre-deploy checklist</h2>
+    <p>Pre-deploy backup reminder. Pre-deploy environment variable reminder. Pre-deploy static collect reminder. Pre-deploy migrations reminder. Pre-deploy secrets not exposed reminder. Pre-deploy DEBUG false reminder. Pre-deploy ALLOWED_HOSTS reminder. Pre-deploy CSRF trusted origins reminder. Pre-deploy database connectivity reminder.</p>
+  </article>
+
+  <article class="otz-card otz-stack">
+    <h2>Deployment command checklist</h2>
+    <p>Deploy code revision reminder. Deploy dependency install reminder. Deploy migrate command reminder. Deploy collectstatic command reminder. Deploy restart app service reminder. Deploy restart worker service reminder. Deploy health endpoint reminder. Deploy run route smoke live runner. Deploy verify release readiness JSON.</p>
+  </article>
+
+  <article class="otz-card otz-stack">
+    <h2>Post-deploy smoke checklist</h2>
+    <p>Post-deploy home probe. Post-deploy KZ root probe. Post-deploy for-business probe. Post-deploy claim-profile noindex probe. Post-deploy reputation-audit noindex probe. Post-deploy business dashboard auth probe. Post-deploy robots.txt probe. Post-deploy sitemap.xml probe. Post-deploy llms.txt probe. Post-deploy ai-reputation.md probe. Post-deploy ops hub probe. Post-deploy blockers probe. Post-deploy release-readiness probe.</p>
+  </article>
+
+  <article class="otz-card otz-stack">
+    <h2>Search submission checklist</h2>
+    <p>Yandex Webmaster submit only after green. Google Search Console submit only after green. IndexNow only after green. Do not submit noindex URLs. Do not submit admin URLs. Do not submit search URLs. Do not submit QR URLs. Do not submit lead form URLs. Do not submit private business URLs. Sitemap only canonical indexable URLs.</p>
+  </article>
+
+  <article class="otz-card otz-stack">
+    <h2>Rollback checklist</h2>
+    <p>Rollback if blockers appear. Rollback if 5xx appears. Rollback if sitemap is malformed. Rollback if robots blocks public docs. Rollback if noindex disappears from private routes. Rollback if schema safety fails. Rollback if paid neutrality copy missing. Rollback if review forms indexable. Rollback if business dashboard public.</p>
+  </article>
+
+  <article class="otz-card otz-stack">
+    <h2>Monitoring checklist</h2>
+    <p>Monitoring first hour reminder. Monitoring first day reminder. Yandex crawling observation reminder. Google crawling observation reminder. Server logs review reminder. Django errors review reminder. 404/500 review reminder. Sitemap fetch review reminder. Robots fetch review reminder. LLMS fetch review reminder. AI reputation fetch review reminder.</p>
+    <p>Green release state visible. Red hold state visible.</p>
+  </article>
+
+  <article class="otz-card otz-stack">
+    <h2>100 deployment gates</h2>
+    <ol class="otz-list">
+      {% for gate in deployment_gates %}<li>{{ gate }}</li>{% endfor %}
+    </ol>
+  </article>
+</section>
+{% endblock %}

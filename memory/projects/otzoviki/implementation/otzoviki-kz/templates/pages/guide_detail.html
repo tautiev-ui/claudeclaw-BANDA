@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block content %}
+<article class="otz-container otz-section">
+  <div class="otz-panel otz-stack">
+    <div class="otz-eyebrow">guide · {{ guide.category.name }}</div>
+    <h1 class="otz-h1">{{ guide.title }}</h1>
+    <p class="otz-text">{{ guide.summary }}</p>
+    {% if quality_issues %}
+      <div class="otz-alert" data-guide-quality-gate="true">
+        <strong>Content quality gate</strong>
+        <p>Гайд опубликован, но пока закрыт от индексации до устранения редакционных QA-рисков.</p>
+        <ul>
+          {% for issue in quality_issues %}<li>{{ issue }}</li>{% endfor %}
+        </ul>
+      </div>
+    {% else %}
+      <div class="otz-card">Launch-ready guide</div>
+    {% endif %}
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Editorial QA</h2>
+      <p>sources: {{ guide.source_count }} · methodology: {{ guide.methodology_version|default:"not set" }}{% if guide.last_verified_at %} · verified: {{ guide.last_verified_at|date:"Y-m-d" }}{% endif %}</p>
+      <p>Гайд не является юридической консультацией; он помогает структурировать проверку подрядчика и снизить риск до подписания договора.</p>
+    </div>
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Короткий ответ</h2>
+      <p>Начните с договора, сметы, отзывов и внешнего следа: проверьте документы, условия оплаты, гарантию, публичные отзывы, официальный ответ и локальную страницу услуги.</p>
+    </div>
+    <div>{{ guide.body }}</div>
+  </div>
+</article>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack"><h2 class="otz-h2">Что проверить до договора</h2>{% for item in guide.checklist_items.all %}<p>✓ {{ item.text }}</p>{% empty %}<p class="otz-muted">Чеклист скоро будет добавлен.</p>{% endfor %}</div>
+    <div class="otz-card otz-stack"><h2 class="otz-h2">Риски и как снизить</h2>{% for item in guide.risk_items.all %}<article><strong>{{ item.risk }}</strong><p>{{ item.mitigation }}</p></article>{% empty %}<p class="otz-muted">Риски скоро будут добавлены.</p>{% endfor %}</div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack"><h2 class="otz-h2">FAQ по выбору подрядчика</h2>{% for faq in guide.faq_items.all %}<article><strong>{{ faq.question }}</strong><p>{{ faq.answer }}</p></article>{% empty %}<p class="otz-muted">FAQ скоро будет добавлен.</p>{% endfor %}</div>
+    <div class="otz-card otz-stack"><h2 class="otz-h2">Источники</h2>{% for source in guide.source_references.all %}<a href="{{ source.url }}" rel="nofollow noopener noreferrer" target="_blank">{{ source.label }}</a>{% empty %}<p class="otz-muted">Источники скоро будут добавлены.</p>{% endfor %}</div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack"><h2 class="otz-h2">Внутренние переходы</h2>{% for link in guide.internal_links.all %}<a href="{{ link.url }}">{{ link.label }}</a>{% empty %}<p class="otz-muted">Связанные страницы скоро будут добавлены.</p>{% endfor %}<a href="/kz/almaty/remont-kvartir/">Ремонт квартир в Алматы</a></div>
+    <div class="otz-card otz-stack"><h2 class="otz-h2">Действия после чтения</h2><p><a href="/claim-profile/">Заявить профиль</a> · <a href="/right-of-reply/">Право на ответ</a> · <a href="/reputation-audit/">Аудит репутации</a></p></div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-card otz-stack">
+    <h2 class="otz-h2">Правила доверия</h2>
+    <p>Платный профиль не влияет на рейтинг, отзывы, индексацию или редакционные выводы. Приватные доказательства не публикуются; публичные выводы должны ссылаться на открытые источники и модерацию.</p>
+  </div>
+</section>
+{% endblock %}

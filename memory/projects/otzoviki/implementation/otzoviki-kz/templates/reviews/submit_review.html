@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block content %}
+<section class="otz-container otz-section">
+  <div class="otz-panel otz-stack">
+    <div class="otz-eyebrow">moderated owned review</div>
+    <h1 class="otz-h1">Оставить отзыв о {{ company.name }}</h1>
+    <p class="otz-text">Пишите факты: что заказали, какие сроки, какой договор, какие акты и гарантия. Не публикуйте угрозы, оскорбления и непроверяемые обвинения.</p>
+    <p class="otz-muted"><a href="/review-policy/">Правила отзывов</a> · приватные доказательства не публикуются по умолчанию.</p>
+    {% if has_errors %}<div class="otz-card">Исправьте ошибки в форме.</div>{% endif %}
+    <form method="post" class="otz-card otz-stack">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="otz-btn" type="submit">Отправить на модерацию</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

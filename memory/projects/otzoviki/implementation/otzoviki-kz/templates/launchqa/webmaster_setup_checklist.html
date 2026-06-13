@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Search Console / Yandex Webmaster checklist{% endblock %}
+{% block meta_description %}Admin-only checklist for Yandex Webmaster and Google Search Console launch setup.{% endblock %}
+{% block robots %}noindex,follow{% endblock %}
+{% block content %}
+<section class="otz-section otz-section--narrow">
+  <p class="otz-eyebrow">Launch QA</p>
+  <h1>Search Console / Yandex Webmaster checklist</h1>
+  <p class="otz-lead">Явные setup-задачи для Яндекс Вебмастера и Google Search Console перед открытием индексации.</p>
+  <div class="otz-trust-strip"><span>Всего задач: {{ tasks_total }}</span><span>Готово: {{ tasks_done }}</span><span>Robots: noindex,follow</span></div>
+  <article class="otz-card otz-stack">
+    <h2>40-gate webmaster readiness</h2>
+    <p>Yandex-first launch · Google Search Console parity · Bing/AI readiness · Verification meta tags · Sitemap submission</p>
+    <p>Robots and noindex audit · Manual indexing queue · Coverage diagnostics · Do not submit thin pages</p>
+  </article>
+  {% for platform, tasks in grouped_tasks.items %}<article class="otz-card"><h2>{{ platform }}</h2><ul class="otz-list">{% for task in tasks %}<li><strong>{{ task.title }}</strong> <span class="otz-badge">{{ task.get_status_display }}</span>{% if task.description %}<p>{{ task.description }}</p>{% endif %}{% if task.verification_url %}<p><a href="{{ task.verification_url }}" rel="nofollow noopener noreferrer" target="_blank">Verification URL</a></p>{% endif %}{% if task.notes %}<p>{{ task.notes }}</p>{% endif %}</li>{% endfor %}</ul></article>{% endfor %}
+</section>
+{% endblock %}

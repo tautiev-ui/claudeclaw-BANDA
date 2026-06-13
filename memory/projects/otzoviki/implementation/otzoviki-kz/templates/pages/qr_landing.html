@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block content %}
+<section class="otz-container otz-section">
+  <div class="otz-panel otz-stack">
+    <div class="otz-eyebrow">QR review flow · {{ flow.label }}</div>
+    <h1 class="otz-h1">{{ page_heading }}</h1>
+    <p class="otz-text">{{ flow.company.name }} · {{ flow.label }}</p>
+    <p class="otz-muted">Эта страница не фильтрует пользователей по настроению или оценке. Выберите любую площадку, где вам удобно оставить честный отзыв.</p>
+    <div class="otz-grid-2">
+      {% for link in platform_links %}
+        <a class="otz-card" href="/r/{{ flow.token }}/{{ link.platform }}/" rel="nofollow noopener">
+          <div class="otz-eyebrow">{{ link.platform_label }}</div>
+          <h2 class="otz-h2">{{ link.platform_label }}</h2>
+          <p class="otz-muted">{{ link.capability }}</p>
+        </a>
+      {% empty %}
+        <div class="otz-card">Площадки для отзыва скоро будут добавлены.</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

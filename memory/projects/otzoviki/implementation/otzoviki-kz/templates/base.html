@@ -1,0 +1,24 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ page_title|default:"Otzoviki KZ" }}{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Otzoviki KZ — проверка ремонтных компаний, отзывы, досье, методология и право на ответ.{% endblock %}">
+  <meta name="robots" content="{% block robots %}{{ robots_meta|default:'index,follow' }}{% endblock %}">
+  {% if canonical_url %}<link rel="canonical" href="{{ canonical_url }}">{% endif %}
+  {% if YANDEX_VERIFICATION %}<meta name="yandex-verification" content="{{ YANDEX_VERIFICATION }}">{% endif %}
+  {% if GOOGLE_SITE_VERIFICATION %}<meta name="google-site-verification" content="{{ GOOGLE_SITE_VERIFICATION }}">{% endif %}
+  <link rel="stylesheet" href="{% static 'css/otzoviki-design-system.css' %}">
+  {% block extra_head %}{% endblock %}
+  {% if breadcrumb_json_ld %}<script type="application/ld+json">{{ breadcrumb_json_ld|safe }}</script>{% endif %}
+</head>
+<body class="otz-page">
+  {% include "partials/header.html" %}
+  <main id="main" class="otz-main">
+    {% block content %}{% endblock %}
+  </main>
+  {% include "partials/footer.html" %}
+</body>
+</html>

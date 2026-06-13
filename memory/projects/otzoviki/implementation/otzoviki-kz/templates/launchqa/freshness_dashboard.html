@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Freshness dashboard{% endblock %}
+{% block meta_description %}Admin-only freshness dashboard for stale company dossiers, external sources and guides.{% endblock %}
+{% block robots %}noindex,follow{% endblock %}
+{% block content %}
+<section class="otz-section otz-section--narrow">
+  <p class="otz-eyebrow">Launch QA</p>
+  <h1>Freshness dashboard</h1>
+  <p class="otz-lead">Срез устаревших досье, внешних источников и гайдов старше 90 дней. Cutoff: {{ cutoff }}</p>
+  <article class="otz-card otz-stack">
+    <h2>40-gate freshness readiness</h2>
+    <p>90-day trust cutoff · Stale dossier risk · Stale external source risk · Stale guide risk · Refresh priority</p>
+    <p>Re-verify before index · Yandex/AI evidence recrawl · Methodology version drift · Export stale worklist</p>
+  </article>
+  <article class="otz-card"><h2>Stale company dossiers</h2><ul class="otz-list">{% for company in stale_companies %}<li><a href="{{ company.get_absolute_url }}">{{ company.name }}</a> · last verified: {{ company.last_verified_at }}</li>{% empty %}<li>No stale company dossiers.</li>{% endfor %}</ul></article>
+  <article class="otz-card"><h2>Stale external sources</h2><ul class="otz-list">{% for source in stale_sources %}<li><a href="{{ source.url }}">{{ source.name }}</a> · {{ source.company.name }} · captured: {{ source.captured_at }}</li>{% empty %}<li>No stale external sources.</li>{% endfor %}</ul></article>
+  <article class="otz-card"><h2>Stale guides</h2><ul class="otz-list">{% for guide in stale_guides %}<li><a href="{{ guide.get_absolute_url }}">{{ guide.title }}</a> · last verified: {{ guide.last_verified_at }}</li>{% empty %}<li>No stale guides.</li>{% endfor %}</ul></article>
+</section>
+{% endblock %}

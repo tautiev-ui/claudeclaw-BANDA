@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block content %}
+<section class="otz-section otz-section--narrow">
+  <p class="otz-eyebrow">Launch QA</p>
+  <h1>Launch blocker dashboard</h1>
+  <p class="otz-lead">100-gate launch blocker dashboard. Staff-only blocker dashboard. Robots: noindex,follow.</p>
+
+  <article class="otz-card otz-stack">
+    <h2>Live runner summary</h2>
+    <p>probe_count: {{ summary.probe_count }}</p>
+    <p>passed: {{ summary.passed }}</p>
+    <p>failed: {{ summary.failed }}</p>
+    <p>{{ summary.failed }} failed</p>
+    <p>failed_paths: {{ summary.failed_paths|join:", " }}</p>
+    <p>launch_blocker_count: {{ summary.launch_blocker_count }}</p>
+    {% if summary.failed %}<p>Red launch state visible</p>{% else %}<p>Green launch state visible</p>{% endif %}
+  </article>
+
+  <article class="otz-card otz-stack">
+    <h2>Critical links</h2>
+    <ul class="otz-list">
+      <li><a href="{{ ops_hub_url }}">{{ ops_hub_url }}</a></li>
+      <li><a href="{{ route_smoke_url }}">{{ route_smoke_url }}</a></li>
+      <li><a href="{{ route_smoke_json_url }}">{{ route_smoke_json_url }}</a></li>
+      <li><a href="{{ route_smoke_csv_url }}">{{ route_smoke_csv_url }}</a></li>
+      <li><a href="{{ route_smoke_live_url }}">{{ route_smoke_live_url }}</a></li>
+      <li><a href="{{ launch_blocker_json_url }}">{{ launch_blocker_json_url }}</a></li>
+      <li><a href="{{ release_readiness_url }}">{{ release_readiness_url }}</a></li>
+      <li><a href="{{ deployment_handoff_url }}">{{ deployment_handoff_url }}</a></li>
+      <li><a href="{{ deployment_handoff_json_url }}">{{ deployment_handoff_json_url }}</a></li>
+      <li><a href="{{ deployment_handoff_csv_url }}">{{ deployment_handoff_csv_url }}</a></li>
+      <li><a href="{{ deployment_handoff_live_url }}">{{ deployment_handoff_live_url }}</a></li>
+      <li><a href="{{ submission_package_json_url }}">{{ submission_package_json_url }}</a></li>
+      <li><a href="{{ submission_package_csv_url }}">{{ submission_package_csv_url }}</a></li>
+      <li><a href="{{ submission_package_live_url }}">{{ submission_package_live_url }}</a></li>
+    </ul>
+  </article>
+
+  <article class="otz-card otz-stack">
+    <h2>Manual release notes</h2>
+    <p>Manual verification reminder. No external network note. GET-only probe note. No mutation note. No production credentials note. Post-deploy required note.</p>
+    <p>Yandex Webmaster hold note. Google Search Console hold note. IndexNow hold note. Sitemap submission hold note.</p>
+  </article>
+
+  <article class="otz-card otz-stack">
+    <h2>Live result details</h2>
+    <ul class="otz-list">
+      {% for result in results %}
+        <li>{{ result.path }} · status {{ result.status_code }}/{{ result.expected_status }} · {{ result.content_type }} · passed={{ result.passed }} · launch_blocker={{ result.launch_blocker }} · response_bytes={{ result.response_bytes }} · snippet={{ result.snippet }}</li>
+      {% endfor %}
+    </ul>
+  </article>
+
+  <article class="otz-card otz-stack">
+    <h2>100 blocker gates</h2>
+    <ol class="otz-list">
+      {% for gate in blocker_gates %}<li>{{ gate }}</li>{% endfor %}
+    </ol>
+  </article>
+</section>
+{% endblock %}

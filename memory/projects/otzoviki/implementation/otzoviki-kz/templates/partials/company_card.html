@@ -1,0 +1,13 @@
+<article class="otz-row">
+  <div class="otz-company-card">
+    <div class="otz-avatar" aria-hidden="true">{{ company_initial|default:'A' }}</div>
+    <div>
+      <strong>{{ company_name|default:'Alma Remont' }}</strong>
+      <div class="otz-muted">{{ company_meta|default:'42 отзыва · официальный ответ есть' }}</div>
+    </div>
+  </div>
+  <div>
+    <div class="otz-score">{{ company_score|default:'4.6' }}</div>
+    <a class="otz-muted" href="{{ company_url|default:'/kz/company/alma-remont/' }}">Досье</a>
+  </div>
+</article>

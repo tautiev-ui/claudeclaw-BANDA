@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load l10n %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block extra_head %}{% if company_schema %}<script type="application/ld+json">{{ company_schema|safe }}</script>{% endif %}{% endblock %}
+{% block content %}
+<section class="otz-container otz-section">
+  <div class="otz-panel otz-stack">
+    <div class="otz-eyebrow">company dossier · {{ company.profile_status }}</div>
+    <h1 class="otz-h1">{{ company.name }}</h1>
+    {% if company.short_description %}<p class="otz-text">{{ company.short_description }}</p>{% endif %}
+    {% include "partials/trust_strip.html" %}
+    <div><a class="otz-btn" href="{{ company.get_absolute_url }}reviews/new/">Оставить отзыв</a> <a class="otz-btn otz-btn-business" href="/claim-profile/">Заявить профиль</a> <a class="otz-btn" href="{{ company.get_absolute_url }}official-response/new/">Официальный ответ</a></div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Trust summary</h2>
+      <p>status: {{ company.profile_status }} · sources: {{ company.source_count }} · methodology: {{ company.methodology_version|default:"not set" }}</p>
+      {% if company.last_verified_at %}<p class="otz-muted">last verified: {{ company.last_verified_at|date:"Y-m-d" }}</p>{% endif %}
+      <p>Приватные доказательства не публикуются; публичные выводы строятся только на видимых отзывах, внешнем следе и модерации.</p>
+    </div>
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Услуги и города</h2>
+      {% for link in service_links %}<p><a href="{{ link.service_page_url }}">{{ link.service.name }} — {{ link.city.name }}</a></p>{% empty %}<p class="otz-muted">Связи с городами и услугами ещё не добавлены.</p>{% endfor %}
+    </div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Рейтинг Otzoviki</h2>
+      {% if rating_snapshot %}
+        <p class="otz-kpi">{% localize off %}{{ rating_snapshot.average_rating }}{% endlocalize %}</p>
+        <p class="otz-muted">{{ rating_snapshot.review_count }} отзывов · качество: {% localize off %}{{ rating_snapshot.quality_rating }}{% endlocalize %} · сроки: {% localize off %}{{ rating_snapshot.timeline_rating }}{% endlocalize %} · коммуникация: {% localize off %}{{ rating_snapshot.communication_rating }}{% endlocalize %}</p>
+      {% else %}
+        <p class="otz-muted">Рейтинг пока не рассчитан.</p>
+      {% endif %}
+    </div>
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Как читать это досье</h2>
+      <p>Сравнивайте отзывы Otzoviki, внешний след, официальные ответы, Yandex / AI evidence и городские услуги. Платный профиль не влияет на рейтинг, отзывы, индексацию или редакционные выводы.</p>
+      <p><a href="/methodology/">Методология</a> · <a href="/review-policy/">Правила отзывов</a> · <a href="/right-of-reply/">Право на ответ</a> · <a href="/reputation-audit/">Аудит репутации</a></p>
+    </div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack">
+      <div class="otz-eyebrow">Отзывы Otzoviki</div>
+      {% for review in public_reviews %}
+        <article><h2 class="otz-h2">{{ review.title }}</h2><p>{{ review.body }}</p><p class="otz-muted">{{ review.author_name }} · {{ review.average_rating }}/5</p></article>
+      {% empty %}
+        <p class="otz-muted">Досье ещё заполняется: публичных отзывов пока нет.</p>
+      {% endfor %}
+    </div>
+    <div class="otz-card otz-stack">
+      <div class="otz-eyebrow">External footprint</div>
+      {% for evidence in public_evidence %}
+        <article><h2 class="otz-h2">{{ evidence.title }}</h2><p>{{ evidence.claim }}</p>{% if evidence.source_url %}<a href="{{ evidence.source_url }}" rel="nofollow noopener noreferrer" target="_blank">Источник</a>{% endif %}</article>
+      {% empty %}<p class="otz-muted">Досье ещё заполняется: внешний след не опубликован.</p>{% endfor %}
+    </div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack">
+      <div class="otz-eyebrow">Официальный ответ</div>
+      {% for response in official_responses %}<p>{{ response.body }}</p>{% empty %}<p class="otz-muted">Официального ответа пока нет.</p>{% endfor %}
+      <a href="/right-of-reply/">Право на ответ</a>
+    </div>
+    <div class="otz-card otz-stack">
+      <div class="otz-eyebrow">Yandex / AI evidence</div>
+      {% for log in ai_logs %}<article><h2 class="otz-h2">{{ log.query }}</h2><p>{{ log.answer_excerpt }}</p><p class="otz-muted">{{ log.platform }} · {{ log.region }}</p></article>{% empty %}<p class="otz-muted">AI/Yandex снимков пока нет.</p>{% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

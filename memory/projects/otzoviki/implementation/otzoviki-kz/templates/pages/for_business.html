@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block content %}
+<section class="otz-container otz-section">
+  <div class="otz-panel otz-stack">
+    <div class="otz-eyebrow">business</div>
+    <h1 class="otz-h1">Для бизнеса</h1>
+    <p class="otz-text">Otzoviki Business помогает заявить профиль, отвечать официально, запускать QR-сбор отзывов и видеть репутацию в Otzoviki, Yandex, 2GIS, Google и AI surfaces.</p>
+    <div class="otz-card">Платный профиль не влияет на рейтинг, ранжирование, отзывы, индексацию или редакционные выводы.</div>
+    <p><a class="otz-btn" href="/claim-profile/">Заявить профиль</a> <a class="otz-btn otz-btn-business" href="/reputation-audit/">Запросить аудит</a></p>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-card otz-stack">
+    <h2 class="otz-h2">Что получает бизнес</h2>
+    <p>Верифицированный представитель получает безопасный канал для актуализации данных, официальных ответов и репутационного аудита без влияния на независимые оценки.</p>
+    <ul>
+      <li>Верифицированный представитель и история claim-заявок;</li>
+      <li>официальный ответ с модерацией и ссылкой на право на ответ;</li>
+      <li>QR review flow без фильтрации негативных пользователей;</li>
+      <li>Репутационный аудит Yandex/AI, 2GIS, Google и Otzoviki.</li>
+    </ul>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-3">
+    <div class="otz-card otz-stack"><h2 class="otz-h2">Claim profile</h2><p>Верификация представителя компании и базовых данных профиля.</p><a href="/claim-profile/">Открыть заявку</a></div>
+    <div class="otz-card otz-stack"><h2 class="otz-h2">Right of reply</h2><p>Официальный ответ отделён от рейтинга и проходит модерацию.</p><a href="/right-of-reply/">Право на ответ</a></div>
+    <div class="otz-card otz-stack"><h2 class="otz-h2">QR review flow</h2><p>QR-страницы ведут на Otzoviki/Yandex/2GIS/Google без фильтрации по настроению.</p><a href="/review-policy/">Правила отзывов</a></div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack"><h2 class="otz-h2">Безопасные границы</h2><p>Бизнес не может удалять отзывы, менять рейтинг, скрывать негатив или влиять на sitemap/index gates. Приватные доказательства и скриншоты не публикуются без отдельного решения модерации.</p></div>
+    <div class="otz-card otz-stack"><h2 class="otz-h2">Публичное раскрытие</h2><p>На публичных страницах сохраняется раскрытие: платный профиль не влияет на рейтинг, ранжирование, отзывы, индексацию или редакционные выводы.</p></div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-card otz-stack"><h2 class="otz-h2">Аудит репутации</h2><p>Проверяем видимость компании, отзывы, ответы, внешние карточки, Yandex/AI evidence log и точки риска.</p><a href="/reputation-audit/">Запросить аудит репутации</a></div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-card otz-stack"><h2 class="otz-h2">Следующие шаги</h2><p>Сначала заявите профиль, затем проверьте право на ответ, настройте QR-поток отзывов и запросите репутационный аудит по ключевым поверхностям.</p></div>
+</section>
+{% endblock %}

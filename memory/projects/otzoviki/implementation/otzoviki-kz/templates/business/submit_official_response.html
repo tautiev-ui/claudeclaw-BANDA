@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block content %}
+<section class="otz-container otz-section">
+  <div class="otz-panel otz-stack">
+    <div class="otz-eyebrow">right of reply</div>
+    <h1 class="otz-h1">Официальный ответ для {{ company.name }}</h1>
+    <p class="otz-text">70-gate official response identity safety. Официальный ответ отделён от редакционного вывода, отзывов и рейтинга. Answer goes to moderation.</p>
+    <p class="otz-muted"><a href="/right-of-reply/">Право на ответ</a> · платный профиль не влияет на рейтинг.</p>
+    {% if verified_representative %}
+      <div class="otz-card otz-stack">
+        <p>Подтверждённый представитель определяется по вашему аккаунту: {{ verified_representative.full_name }} · {{ verified_representative.email }} · {{ verified_representative.role_title }}.</p>
+        <p>Identity source: authenticated account, not editable POST identity.</p>
+        <p>Verified representative status: approved + email verified.</p>
+      </div>
+    {% endif %}
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Identity and policy boundaries</h2>
+      <p>POST contact email cannot claim another verified representative.</p>
+      <p>Anonymous submissions cannot attach to existing verified representative by email.</p>
+      <p>Submitted response starts pending. Moderation required before publication.</p>
+      <p>Official response is separate from reviews and rating. Paid profile does not affect rating.</p>
+      <p>No deletion of reviews. No ranking boost. Private proof is not rendered publicly. source_page uses same-host attribution.</p>
+    </div>
+    <form method="post" class="otz-card otz-stack">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="otz-btn" type="submit">Отправить ответ на модерацию</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block content %}
+<section class="otz-container otz-section">
+  <div class="otz-panel otz-stack">
+    <div class="otz-eyebrow">business claim</div>
+    <h1 class="otz-h1">Заявить профиль компании</h1>
+    <p class="otz-text">Платный профиль не влияет на рейтинг, ранжирование, редакционные выводы и отзывы. Claim нужен для верификации представителя и официального ответа.</p>
+    <p class="otz-muted"><a href="/right-of-reply/">Право на ответ</a> · <a href="/methodology/">Методология</a> · <a href="/review-policy/">Правила отзывов</a></p>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Что нужно для проверки</h2>
+      <ul>
+        <li>БИН или документы компании;</li>
+        <li>корпоративная почта, сайт или подтверждённый контакт;</li>
+        <li>описание связи представителя с компанией;</li>
+        <li>согласие на обработку заявки и служебную проверку.</li>
+      </ul>
+    </div>
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Что происходит после заявки</h2>
+      <p>Модератор проверяет связь с компанией, фиксирует решение в audit log и только после approval открывает представительские функции. Claim не даёт права удалять отзывы или менять рейтинг.</p>
+    </div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <form method="post" class="otz-card otz-stack">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="otz-btn" type="submit">Отправить заявку</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load l10n %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block content %}
+<section class="otz-container otz-hero">
+  <div class="otz-hero-grid">
+    <div class="otz-panel otz-stack">
+      <div class="otz-eyebrow">Otzoviki KZ MVP</div>
+      <h1 class="otz-h1">Проверьте ремонтную компанию до договора</h1>
+      <p class="otz-text">Досье, отзывы, внешний след, официальный ответ и признаки риска — в лёгком SEO-first SSR интерфейсе.</p>
+      {% include "partials/search_box.html" with placeholder="Название компании, услуга или город" button_label="Проверить" %}
+      <p><a href="/kz/">Перейти к Казахстану</a> · <a href="/methodology/">Методология</a></p>
+      {% include "partials/trust_strip.html" %}
+    </div>
+    <div class="otz-stack">
+      <div class="otz-card"><div class="otz-label">Launch batch</div><div class="otz-kpi">50–100</div><p class="otz-muted">заполненных досье компаний перед открытием индексации.</p></div>
+      {% include "partials/right_of_reply.html" %}
+    </div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-section-head"><h2 class="otz-h2">Города Казахстана</h2><a class="otz-btn" href="/kz/">Все города</a></div>
+  <div class="otz-grid-3">
+    {% for city in cities %}
+      <a class="otz-card" href="{{ city.get_absolute_url }}"><h3>{{ city.name }}</h3><p class="otz-muted">Компании, услуги, рейтинги и цены</p></a>
+    {% empty %}
+      <div class="otz-card">Города скоро будут добавлены.</div>
+    {% endfor %}
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-section-head"><h2 class="otz-h2">Компании и досье</h2><a class="otz-btn" href="/search/">Найти компанию</a></div>
+  <div class="otz-grid-3">
+    {% for card in company_cards %}
+      <a class="otz-card otz-stack" href="{{ card.company.get_absolute_url }}">
+        <h3>{{ card.company.name }}</h3>
+        <p>{{ card.company.short_description }}</p>
+        {% if card.snapshot %}<p class="otz-muted">{% localize off %}{{ card.snapshot.average_rating }}{% endlocalize %} · {{ card.snapshot.review_count }} отзывов</p>{% endif %}
+      </a>
+    {% empty %}
+      <div class="otz-card">Досье компаний появятся после проверки источников.</div>
+    {% endfor %}
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack">
+      <div class="otz-eyebrow">Гайды</div>
+      <h2 class="otz-h2">Как выбирать подрядчика</h2>
+      {% for guide in guides %}<p><a href="{{ guide.get_absolute_url }}">{{ guide.title }}</a></p>{% empty %}<p class="otz-muted">Гайды скоро будут добавлены.</p>{% endfor %}
+      {% include "partials/guide_checklist.html" %}
+    </div>
+    <div class="otz-card"><div class="otz-eyebrow">Business CTA</div><h2 class="otz-h2">Заявите профиль без влияния на рейтинг</h2><p class="otz-muted">B2B-функции отделены от редакционной методологии: official response, claim profile, QR flow и аудит репутации.</p><a class="otz-btn otz-btn-business" href="/claim-profile/">Заявить профиль</a></div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-3">
+    <div class="otz-card otz-stack"><div class="otz-eyebrow">Пример карточки</div>{% include "partials/company_card.html" with company_initial="A" company_name="Alma Remont" company_meta="досье компании" company_score="4.6" %}</div>
+    {% include "partials/evidence_card.html" %}
+    {% include "partials/risk_block.html" %}
+  </div>
+</section>
+{% endblock %}

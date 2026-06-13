@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block content %}
+<section class="otz-container otz-section">
+  <div class="otz-panel otz-stack">
+    <div class="otz-eyebrow">{{ page_type }}</div>
+    <h1 class="otz-h1">{{ page_heading }}</h1>
+    <p class="otz-text">{{ page_description }}</p>
+    {% include "partials/search_box.html" with placeholder="Компания, услуга или город" button_label="Найти" %}
+    {% include "partials/trust_strip.html" %}
+  </div>
+</section>
+{% if page_type == "privacy" or page_type == "terms" or page_type == "review_policy" or page_type == "right_of_reply" %}
+<section class="otz-container otz-section">
+  <div class="otz-card otz-stack">
+    <h2 class="otz-h2">Публичная политика Otzoviki KZ</h2>
+    <p>Эта страница описывает условия работы сервиса, персональные данные, отзывы, модерацию, право на ответ и границы публичных материалов.</p>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Что публикуется</h2>
+      <ul>
+        <li>публичные досье компаний, отзывы после модерации и официальные ответы;</li>
+        <li>методология, правила отзывов, право на ответ и AI/public notes;</li>
+        <li>агрегированные рейтинги только на основе видимых owned reviews.</li>
+      </ul>
+    </div>
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Что остаётся приватным</h2>
+      <ul>
+        <li>приватные доказательства, документы, скриншоты и служебные audit logs;</li>
+        <li>контакты заявителей, персональные данные и материалы проверки представителя;</li>
+        <li>чувствительные репутационные снимки до решения модерации.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Модерация и право на ответ</h2>
+      <p>Отзывы, официальные ответы и спорные материалы проходят модерацию. Компания может воспользоваться правом на ответ, но это не удаляет отзывы автоматически.</p>
+      <p><a href="/review-policy/">Правила отзывов</a> · <a href="/right-of-reply/">Право на ответ</a></p>
+    </div>
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Нейтральность рейтинга</h2>
+      <p>Платный профиль не влияет на рейтинг, ранжирование, отзывы, индексацию или редакционные выводы.</p>
+      <p><a href="/for-business/">Для бизнеса</a> · <a href="/methodology/">Методология</a></p>
+    </div>
+  </div>
+</section>
+{% endif %}
+{% if company %}
+<section class="otz-container otz-section">
+  {% include "partials/company_card.html" with company_initial=company.name|first company_name=company.name company_meta="Досье компании" company_score="—" %}
+  {% include "partials/right_of_reply.html" %}
+</section>
+{% endif %}
+{% if flow %}
+<section class="otz-container otz-section">
+  <div class="otz-card otz-stack">
+    <h2 class="otz-h2">{{ flow.company.name }}</h2>
+    <p class="otz-muted">Эта страница не фильтрует пользователей по настроению или оценке.</p>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

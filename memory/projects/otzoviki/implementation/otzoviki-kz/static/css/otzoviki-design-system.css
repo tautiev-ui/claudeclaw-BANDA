@@ -1,0 +1,203 @@
+/* Otzoviki KZ Design System Tokens
+   Direction: Registry/Trust + Modern Review
+   SEO-first SSR UI: low JS, readable, evidence-heavy, fast. */
+
+:root {
+  /* Brand intent */
+  --otz-theme-name: "Otzoviki KZ Trust Registry";
+
+  /* Color — semantic */
+  --color-bg: #f5f2ea;
+  --color-bg-subtle: #eee8dc;
+  --color-surface: #fffdfa;
+  --color-surface-raised: #ffffff;
+  --color-ink: #151716;
+  --color-ink-soft: #39423d;
+  --color-muted: #66706a;
+  --color-line: #e1dacd;
+
+  /* Brand / trust */
+  --color-trust-900: #153d2b;
+  --color-trust-800: #1c4f37;
+  --color-trust-700: #246246;
+  --color-trust-100: #eef5ef;
+  --color-trust-050: #f5faf6;
+
+  /* Evidence / external footprint */
+  --color-evidence-700: #2457a7;
+  --color-evidence-100: #eef4ff;
+  --color-evidence-line: #d4ddf2;
+
+  /* Business CTA */
+  --color-business-600: #e4a53a;
+  --color-business-700: #bf7e16;
+  --color-business-100: #fff2d8;
+
+  /* Risk states */
+  --color-risk-700: #a93a32;
+  --color-risk-100: #fff0ee;
+  --color-risk-line: #efc5bf;
+  --color-warn-700: #8a5a10;
+  --color-warn-100: #fff2d8;
+  --color-warn-line: #efd5a0;
+  --color-ok-700: #21865a;
+  --color-ok-100: #eaf7f0;
+
+  /* Typography — use system first for performance, with optional later font swap */
+  --font-display: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --font-body: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+  --type-xs: 0.75rem;
+  --type-sm: 0.875rem;
+  --type-base: 1rem;
+  --type-md: 1.125rem;
+  --type-lg: 1.25rem;
+  --type-xl: 1.5rem;
+  --type-2xl: 2rem;
+  --type-3xl: 2.75rem;
+  --type-hero: clamp(2.55rem, 6vw, 4.75rem);
+
+  --leading-tight: 0.98;
+  --leading-title: 1.08;
+  --leading-body: 1.5;
+  --tracking-tight: -0.055em;
+  --tracking-title: -0.035em;
+  --tracking-eyebrow: 0.13em;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --container: 76rem;
+
+  /* Radius */
+  --radius-sm: 0.75rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-xl: 2rem;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-card: 0 18px 55px rgba(29, 25, 18, 0.09);
+  --shadow-panel: 0 28px 90px rgba(29, 25, 18, 0.13);
+  --shadow-focus: 0 0 0 4px rgba(36, 98, 70, 0.18);
+
+  /* Motion */
+  --ease-standard: cubic-bezier(.2, .8, .2, 1);
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+
+  /* Layout */
+  --header-height: 72px;
+  --card-padding: clamp(1rem, 2.2vw, 1.5rem);
+}
+
+/* Base primitives */
+.otz-page {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  text-rendering: optimizeLegibility;
+}
+.otz-container { max-width: var(--container); margin-inline: auto; padding-inline: var(--space-6); }
+.otz-eyebrow { color: var(--color-trust-700); font-size: var(--type-xs); font-weight: 900; letter-spacing: var(--tracking-eyebrow); text-transform: uppercase; }
+.otz-h1 { font-family: var(--font-display); font-size: var(--type-hero); line-height: var(--leading-tight); letter-spacing: var(--tracking-tight); margin: 0; }
+.otz-h2 { font-family: var(--font-display); font-size: var(--type-3xl); line-height: var(--leading-title); letter-spacing: var(--tracking-title); margin: 0; }
+.otz-text { color: var(--color-ink-soft); line-height: var(--leading-body); }
+.otz-muted { color: var(--color-muted); font-size: var(--type-sm); line-height: 1.45; }
+
+.otz-card { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); padding: var(--card-padding); }
+.otz-card-flat { background: var(--color-surface-raised); border: 1px solid var(--color-line); border-radius: var(--radius-md); padding: var(--space-4); }
+.otz-panel { background: linear-gradient(135deg, #fffdf8, var(--color-trust-100)); border: 1px solid var(--color-line); border-radius: var(--radius-xl); padding: clamp(1.5rem, 4vw, 2.25rem); }
+
+.otz-btn { display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--color-line); border-radius: var(--radius-pill); background: var(--color-surface-raised); color: var(--color-ink); font-weight: 850; padding: .72rem 1rem; text-decoration: none; transition: transform var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard); }
+.otz-btn:hover { transform: translateY(-1px); }
+.otz-btn:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+.otz-btn-primary { background: var(--color-trust-900); color: white; border-color: var(--color-trust-900); }
+.otz-btn-business { background: var(--color-business-600); color: #2b1b05; border-color: var(--color-business-600); }
+
+.otz-chip { display: inline-flex; align-items: center; border-radius: var(--radius-pill); padding: .45rem .65rem; font-size: var(--type-xs); font-weight: 800; border: 1px solid #d4e3d7; background: var(--color-trust-100); color: #244b37; }
+.otz-chip-evidence { background: var(--color-evidence-100); border-color: var(--color-evidence-line); color: var(--color-evidence-700); }
+.otz-chip-warning { background: var(--color-warn-100); border-color: var(--color-warn-line); color: var(--color-warn-700); }
+.otz-chip-risk { background: var(--color-risk-100); border-color: var(--color-risk-line); color: var(--color-risk-700); }
+
+.otz-row { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); border: 1px solid var(--color-line); background: var(--color-surface-raised); border-radius: var(--radius-md); padding: var(--space-4); }
+.otz-avatar { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; background: #e7efe8; color: var(--color-trust-900); font-weight: 900; }
+.otz-company-card { display: flex; align-items: center; gap: var(--space-3); }
+.otz-score { font-weight: 950; color: var(--color-trust-900); }
+
+.otz-trust-strip { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-block: var(--space-4); }
+.otz-search-box { min-height: 58px; border-radius: var(--radius-md); border: 1px solid var(--color-line); background: var(--color-surface-raised); display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: .55rem .7rem .55rem 1rem; color: var(--color-muted); }
+
+@media (max-width: 760px) {
+  .otz-container { padding-inline: var(--space-4); }
+  .otz-row { align-items: flex-start; flex-direction: column; }
+  .otz-search-box { align-items: stretch; flex-direction: column; }
+  .otz-btn { width: 100%; }
+}
+
+
+/* OTZ-002 layout shell */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { min-width: 320px; }
+a { color: inherit; }
+img, svg { max-width: 100%; }
+
+.otz-site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: var(--header-height);
+  border-bottom: 1px solid var(--color-line);
+  background: rgba(245, 242, 234, 0.92);
+  backdrop-filter: blur(18px);
+}
+.otz-nav { height: 100%; display: flex; align-items: center; gap: var(--space-5); }
+.otz-logo { display: inline-flex; align-items: center; gap: var(--space-2); color: inherit; text-decoration: none; font-weight: 950; font-size: 1.45rem; letter-spacing: var(--tracking-tight); }
+.otz-logo-mark { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; color: white; background: linear-gradient(145deg, var(--color-trust-900), var(--color-trust-700)); }
+.otz-nav-links { display: flex; gap: var(--space-4); color: var(--color-muted); font-size: var(--type-sm); flex: 1; }
+.otz-nav-links a { text-decoration: none; }
+.otz-nav-links a:hover { color: var(--color-trust-900); }
+.otz-main { min-height: calc(100vh - var(--header-height)); }
+.otz-footer { border-top: 1px solid var(--color-line); padding-block: var(--space-10); color: var(--color-muted); }
+.otz-footer-grid { display: grid; grid-template-columns: 1.2fr repeat(3, 1fr); gap: var(--space-6); }
+.otz-footer a { display: block; color: inherit; text-decoration: none; margin-top: var(--space-2); }
+.otz-footer a:hover { color: var(--color-trust-900); }
+
+.otz-hero { padding-block: clamp(3rem, 7vw, 5.5rem); }
+.otz-hero-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(18rem, .9fr); gap: var(--space-6); align-items: stretch; }
+.otz-stack { display: grid; gap: var(--space-4); }
+.otz-section { padding-block: var(--space-10); }
+.otz-section-head { display: flex; align-items: end; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-5); }
+.otz-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5); }
+.otz-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); }
+.otz-kpi { font-size: var(--type-3xl); line-height: 1; letter-spacing: var(--tracking-tight); font-weight: 950; color: var(--color-trust-900); }
+.otz-label { color: var(--color-muted); font-size: var(--type-xs); text-transform: uppercase; letter-spacing: .08em; font-weight: 900; }
+
+.otz-search-form { display: flex; width: 100%; gap: var(--space-3); align-items: center; }
+.otz-search-input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--color-ink); font: inherit; }
+.otz-search-input::placeholder { color: var(--color-muted); }
+
+.otz-evidence-card, .otz-risk-block, .otz-right-of-reply, .otz-guide-checklist { display: grid; gap: var(--space-3); }
+.otz-evidence-card { border-color: var(--color-evidence-line); background: var(--color-evidence-100); }
+.otz-risk-block { border-color: var(--color-warn-line); background: var(--color-warn-100); }
+.otz-risk-block.is-high { border-color: var(--color-risk-line); background: var(--color-risk-100); }
+.otz-right-of-reply { border-color: #d4e3d7; background: var(--color-trust-050); }
+.otz-guide-checklist ol { margin: 0; padding-left: 1.25rem; display: grid; gap: var(--space-2); }
+.otz-guide-checklist li::marker { color: var(--color-trust-700); font-weight: 900; }
+
+@media (max-width: 900px) {
+  .otz-nav-links { display: none; }
+  .otz-hero-grid, .otz-grid-2, .otz-grid-3, .otz-footer-grid { grid-template-columns: 1fr; }
+  .otz-section-head { align-items: flex-start; flex-direction: column; }
+}
