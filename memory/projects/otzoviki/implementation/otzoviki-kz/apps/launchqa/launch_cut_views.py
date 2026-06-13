@@ -1,4 +1,5 @@
 import csv
+from html import escape
 
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse, JsonResponse
@@ -362,3 +363,76 @@ def first_index_batch_csv(request):
     for row in _first_index_batch_rows():
         writer.writerow(row)
     return response
+
+
+VERIFIED_COMPANY_FIRST_INDEX_FIELDS = [
+    'url',
+    'name',
+    'slug',
+    'source_count',
+    'yandex_url',
+    'two_gis_url',
+    'robots_expected',
+    'canonical_path',
+    'smoke_status',
+    'submission_allowed',
+    'manual_required',
+    'notes',
+]
+
+
+def _verified_company_first_index_rows():
+    rows = []
+    companies = Company.objects.filter(index_status='indexable', is_active=True).prefetch_related('external_sources').order_by('slug')
+    for company in companies:
+        verified_sources = [source for source in company.external_sources.all() if source.same_as_verified]
+        yandex = next((source for source in verified_sources if source.source_type == 'yandex'), None)
+        two_gis = next((source for source in verified_sources if source.source_type == '2gis'), None)
+        if not yandex or not two_gis or not company.schema_eligible:
+            continue
+        rows.append({
+            'url': company.get_absolute_url(),
+            'name': company.name,
+            'slug': company.slug,
+            'source_count': company.source_count,
+            'yandex_url': yandex.url,
+            'two_gis_url': two_gis.url,
+            'robots_expected': 'index,follow',
+            'canonical_path': company.canonical_url_path,
+            'smoke_status': 'pending-production-smoke',
+            'submission_allowed': 'true',
+            'manual_required': 'true',
+            'notes': 'verified Yandex + 2GIS company dossier; submit only after production smoke',
+        })
+    return rows
+
+
+@staff_member_required
+def verified_company_first_index_batch_csv(request):
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = 'attachment; filename="verified-company-first-index-batch.csv"'
+    writer = csv.DictWriter(response, fieldnames=VERIFIED_COMPANY_FIRST_INDEX_FIELDS)
+    writer.writeheader()
+    for row in _verified_company_first_index_rows():
+        writer.writerow(row)
+    return response
+
+
+@staff_member_required
+def verified_company_first_index_batch_html(request):
+    rows = _verified_company_first_index_rows()
+    header = ''.join(f'<th>{escape(field)}</th>' for field in VERIFIED_COMPANY_FIRST_INDEX_FIELDS)
+    body = []
+    for row in rows:
+        cells = ''.join(f'<td>{escape(str(row[field]))}</td>' for field in VERIFIED_COMPANY_FIRST_INDEX_FIELDS)
+        body.append(f'<tr>{cells}</tr>')
+    html = f'''<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><title>Verified company first-index batch</title></head>
+<body>
+<h1>Verified company first-index batch</h1>
+<p>Staff-only operator list. No external submission is performed by this page. Rows: {len(rows)}.</p>
+<p><a href="/admin/launch-qa/verified-company-first-index-batch.csv">Download CSV</a></p>
+<table border="1"><thead><tr>{header}</tr></thead><tbody>{''.join(body)}</tbody></table>
+</body></html>'''
+    return HttpResponse(html, content_type='text/html; charset=utf-8')
