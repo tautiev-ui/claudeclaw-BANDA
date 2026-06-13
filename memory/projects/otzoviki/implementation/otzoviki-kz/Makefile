@@ -1,7 +1,7 @@
 PYTHON ?= python
 PIP ?= python -m pip
 
-.PHONY: install check test migrate seed-launch launch-crawl operator-readiness production-handoff markin-next-wave company-import-example company-import-dry-run search-submission-package verify
+.PHONY: install check test migrate seed-launch launch-crawl operator-readiness production-handoff markin-next-wave company-import-example company-import-dry-run company-publish-dry-run search-submission-package verify
 
 install:
 	$(PIP) install --upgrade pip
@@ -36,6 +36,9 @@ company-import-example:
 
 company-import-dry-run:
 	$(PYTHON) manage.py import_company_dossiers docs/company-import-template.csv --report docs/company-import-dry-run-report.csv --dry-run
+
+company-publish-dry-run:
+	$(PYTHON) manage.py publish_company_dossiers --report docs/company-publish-dry-run-report.csv --dry-run
 
 search-submission-package:
 	$(PYTHON) manage.py export_search_submission_package --output-dir docs/search-submission-package --host https://otzoviki.kz
