@@ -353,6 +353,7 @@ def company_dossier(request, slug: str):
         "official_responses": OfficialResponse.objects.public().filter(company=company),
         "ai_logs": AIYandexEvidenceLog.objects.public().filter(company=company),
         "service_links": company.service_links.select_related("city", "service").order_by("city__name", "service__name"),
+        "external_sources": company.external_sources.filter(same_as_verified=True).order_by("source_type", "name"),
         "rating_snapshot": getattr(company, "rating_snapshot", None),
         "company_schema": json.dumps(company_schema, ensure_ascii=False) if company_schema else "",
     }
