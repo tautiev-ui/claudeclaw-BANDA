@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block content %}
+<section class="otz-container otz-section">
+  <div class="otz-panel otz-stack">
+    <div class="otz-eyebrow">admin report</div>
+    <h1 class="otz-h1">Keyword/page mapping report</h1>
+    <p class="otz-text">Admin-only report for Stage 4A keywords, clusters, page maps and unmapped SEO demand.</p>
+    {% if totals.unmapped_count %}<div class="otz-alert">Launch risk: unmapped high-frequency demand</div>{% endif %}
+    <p><a href="/admin/keywords/page-map-export.csv">Download page-map CSV</a></p>
+    <div class="otz-grid-3">
+      <div class="otz-card"><strong>Всего keywords</strong><div class="otz-kpi">{{ totals.keyword_count }}</div></div>
+      <div class="otz-card"><strong>Evidence rows</strong><div class="otz-kpi">{{ totals.evidence_count }}</div></div>
+      <div class="otz-card"><strong>Clusters</strong><div class="otz-kpi">{{ totals.cluster_count }}</div></div>
+      <div class="otz-card"><strong>Page maps</strong><div class="otz-kpi">{{ totals.page_map_count }}</div></div>
+      <div class="otz-card"><strong>Total frequency</strong><div class="otz-kpi">{{ totals.frequency_sum }}</div></div>
+      <div class="otz-card"><strong>Unmapped</strong><div class="otz-kpi">{{ totals.unmapped_count }}</div></div>
+    </div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack"><h2 class="otz-h2">Top queries</h2>{% for keyword in top_queries %}<p>{{ keyword.query }} · {{ keyword.frequency }} · {{ keyword.target_cluster|default:"no target" }}</p>{% empty %}<p>No keywords.</p>{% endfor %}</div>
+    <div class="otz-card otz-stack"><h2 class="otz-h2">Unmapped queries</h2>{% for keyword in unmapped_queries %}<p>{{ keyword.query }} · {{ keyword.frequency }}</p>{% empty %}<p>No unmapped queries.</p>{% endfor %}</div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack"><h2 class="otz-h2">Clusters</h2>{% for cluster in cluster_stats %}<p>{{ cluster.slug }} · {{ cluster.page_type }} · keywords: {{ cluster.keyword_count }} · demand: {{ cluster.frequency_sum|default:0 }} · maps: {{ cluster.page_map_count }}</p>{% empty %}<p>No clusters.</p>{% endfor %}</div>
+    <div class="otz-card otz-stack"><h2 class="otz-h2">Page maps</h2>{% for page_map in page_maps %}<p>{{ page_map.cluster.slug }} → {{ page_map.page_type }} · {{ page_map.priority }} · index candidate: {{ page_map.is_indexable_candidate }} · {{ page_map.canonical_pattern }}</p>{% empty %}<p>No page maps.</p>{% endfor %}</div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-card otz-stack">
+    <h2 class="otz-h2">Top evidence domains</h2>
+    {% for domain in top_evidence_domains %}<p>{{ domain.domain }} · rows: {{ domain.rows }} · top-10: {{ domain.top_10 }}</p>{% empty %}<p>No evidence domains.</p>{% endfor %}
+  </div>
+</section>
+{% endblock %}

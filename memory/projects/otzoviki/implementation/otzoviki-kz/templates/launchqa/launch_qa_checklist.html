@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Launch QA checklist{% endblock %}
+{% block meta_description %}Admin-only MVP launch QA checklist for routes, status codes, canonicals, noindex, schema, sitemap, robots, mobile and CWV basics.{% endblock %}
+{% block robots %}noindex,follow{% endblock %}
+{% block content %}
+<section class="otz-section otz-section--narrow">
+  <p class="otz-eyebrow">Launch QA</p>
+  <h1>Launch QA checklist</h1>
+  <p class="otz-lead">Контрольный список перед открытием индексации: маршруты, статусы, canonical/noindex, schema, sitemap/robots, mobile/CWV и качество контента.</p>
+  <div class="otz-trust-strip"><span>Всего проверок: {{ checks_total }}</span><span>Passed: {{ checks_passed }}</span><span>Robots: noindex,follow</span></div>
+  <article class="otz-card otz-stack">
+    <h2>40-gate launch readiness</h2>
+    <p>Route smoke matrix · Indexability gates · Schema parity · Sitemap hygiene · Thin-page suppression</p>
+    <p>Legal/trust pages · AEO/GEO public docs · B2B neutrality disclosure · Block launch if failed</p>
+  </article>
+  {% for category, checks in grouped_checks.items %}
+    <article class="otz-card"><h2>{{ category }}</h2><ul class="otz-list">{% for check in checks %}<li><strong>{{ check.title }}</strong> <span class="otz-badge">{{ check.get_status_display }}</span>{% if check.target %}<p>Target: {{ check.target }}</p>{% endif %}{% if check.expected %}<p>{{ check.expected }}</p>{% endif %}{% if check.evidence %}<p>{{ check.evidence }}</p>{% endif %}</li>{% endfor %}</ul></article>
+  {% endfor %}
+</section>
+{% endblock %}

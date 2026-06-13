@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block content %}
+<section class="otz-container otz-section">
+  <div class="otz-panel otz-stack">
+    <div class="otz-eyebrow">guides hub</div>
+    <h1 class="otz-h1">Гайды Otzoviki KZ</h1>
+    <p class="otz-text">Практические материалы: как проверить ремонтную компанию, читать смету, работать с отзывами, жалобами и официальным ответом.</p>
+    <p><a href="/kz/almaty/remont-kvartir/">Ремонт квартир в Алматы</a> · <a href="/kz/almaty/reyting-remontnyh-kompaniy/">Рейтинг</a> · <a href="/claim-profile/">Заявить профиль</a></p>
+    {% if not has_guides %}<div class="otz-card">Гайды скоро будут добавлены — раздел остаётся noindex до публикации материалов.</div>{% endif %}
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    {% for category in categories %}
+      <div id="{{ category.slug }}" class="otz-card otz-stack">
+        <div class="otz-eyebrow">{{ category.slug }}</div>
+        <h2 class="otz-h2">{{ category.name }}</h2>
+        {% if category.description %}<p class="otz-muted">{{ category.description }}</p>{% endif %}
+        {% for guide in category.public_guides %}
+          <article class="otz-stack">
+            <h3><a href="{{ guide.get_absolute_url }}">{{ guide.title }}</a></h3>
+            <p>{{ guide.summary }}</p>
+          </article>
+        {% empty %}
+          <p class="otz-muted">В этой категории пока нет опубликованных гайдов.</p>
+        {% endfor %}
+      </div>
+    {% empty %}
+      <div class="otz-card">Гайды скоро будут добавлены.</div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

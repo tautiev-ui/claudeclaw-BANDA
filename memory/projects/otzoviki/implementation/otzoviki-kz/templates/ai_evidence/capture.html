@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}AI/Yandex evidence capture{% endblock %}
+{% block meta_description %}Admin-only manual capture form for Yandex and AI reputation evidence.{% endblock %}
+{% block robots %}noindex,follow{% endblock %}
+
+{% block content %}
+<section class="otz-section otz-section--narrow">
+  <p class="otz-eyebrow">Yandex-first evidence</p>
+  <h1>AI/Yandex evidence capture</h1>
+  <p class="otz-lead">Ручная фиксация Yandex/AI snapshot: platform, query, region, answer excerpt, cited sources, sentiment, screenshot/file.</p>
+
+  <article class="otz-card">
+    <h2>Seed query templates</h2>
+    <ul class="otz-list">
+      {% for template in seed_query_templates %}<li>{{ template }}</li>{% endfor %}
+    </ul>
+  </article>
+
+  <form method="post" enctype="multipart/form-data" class="otz-card otz-stack">
+    {% csrf_token %}
+    {% if form.errors %}<div class="otz-alert">{{ form.errors }}</div>{% endif %}
+    {{ form.as_p }}
+    <button class="otz-button" type="submit">Save evidence snapshot</button>
+  </form>
+</section>
+{% endblock %}

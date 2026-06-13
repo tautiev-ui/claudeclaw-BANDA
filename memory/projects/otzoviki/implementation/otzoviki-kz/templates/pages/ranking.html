@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load l10n %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block content %}
+<section class="otz-container otz-section">
+  <div class="otz-panel otz-stack">
+    <div class="otz-eyebrow">ranking</div>
+    <h1 class="otz-h1">Рейтинг ремонтных компаний в {{ city.name }}</h1>
+    <p class="otz-text">Рейтинг строится на публичных отзывах, досье компаний и проверяемых сигналах. Платный профиль не влияет на рейтинг, отзывы, индексацию или порядок вывода.</p>
+    <p><a href="/methodology/">Методология рейтинга</a> · <a href="{{ service_url }}">Все компании по ремонту квартир</a> · <a href="{{ price_url }}">Цены</a></p>
+    {% if not has_enough_data %}<div class="otz-card">Недостаточно данных для рейтинга — страница остаётся noindex до наполнения.</div>{% endif %}
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Факторы рейтинга</h2>
+      <ul>
+        <li>количество и свежесть отзывов после модерации;</li>
+        <li>качество, сроки и коммуникация в оценках;</li>
+        <li>проверяемые источники в досье и внешний след;</li>
+        <li>официальные ответы компаний и работа со спорными ситуациями.</li>
+      </ul>
+    </div>
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Нейтральность и право на ответ</h2>
+      <p>Компания может заявить профиль или дать ответ, но это не меняет оценку, порядок компаний и правила индексации. Платные функции отделены от редакционных выводов.</p>
+      <p><a href="/right-of-reply/">Право на ответ</a> · <a href="/for-business/">Для бизнеса</a> · <a href="/review-policy/">Правила отзывов</a></p>
+    </div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-card otz-stack">
+    <h2 class="otz-h2">Частые вопросы о рейтинге в {{ city.name }}</h2>
+    <h3>Почему компания выше в рейтинге?</h3>
+    <p>Позиция зависит от проверяемых отзывов, среднего рейтинга, количества сигналов, свежести данных и прозрачности досье. Ручное продвижение или платный профиль не учитываются.</p>
+    <h3>Почему компании может не быть в рейтинге?</h3>
+    <p>Если данных мало, профиль не прошёл trust/index gates или нет связи с услугой в городе, компания не должна попадать в индексируемый рейтинг.</p>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-stack">
+    {% for card in company_cards %}
+      <article class="otz-card otz-stack">
+        <div class="otz-eyebrow">#{{ forloop.counter }}</div>
+        <h2 class="otz-h2"><a href="{{ card.company.get_absolute_url }}">{{ card.company.name }}</a></h2>
+        <p>{{ card.company.short_description }}</p>
+        {% if card.snapshot %}<p class="otz-muted">{% localize off %}{{ card.snapshot.average_rating }}{% endlocalize %} · {{ card.snapshot.review_count }} отзывов</p>{% endif %}
+        <p><a href="{{ card.company.get_absolute_url }}">Открыть досье</a></p>
+      </article>
+    {% empty %}
+      <div class="otz-card">Компании для рейтинга скоро будут добавлены.</div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block content %}
+<section class="otz-container otz-section">
+  <div class="otz-panel otz-stack">
+    <h1 class="otz-h1">Поиск</h1>
+    {% include "partials/search_box.html" with placeholder="Компания, услуга или город" button_label="Найти" %}
+    {% if query %}<p class="otz-muted">Запрос: {{ query }}</p>{% endif %}
+    {% if results %}
+      <div class="otz-stack">
+        {% for result in results %}
+          <a class="otz-card" href="{{ result.url }}"><span class="otz-eyebrow">{{ result.type }}</span><h2 class="otz-h2">{{ result.title }}</h2><p class="otz-muted">{{ result.url }}</p></a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="otz-card otz-stack">
+        <h2 class="otz-h2">Ничего не найдено</h2>
+        <p class="otz-muted">Предложить компанию или уточнить город/услугу можно через форму.</p>
+        <a class="otz-btn" href="/claim-profile/">Предложить компанию</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

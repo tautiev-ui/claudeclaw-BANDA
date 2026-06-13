@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Indexing monitor{% endblock %}
+{% block meta_description %}Admin-only indexing monitor for submitted, indexed, noindex and empty-profile launch states.{% endblock %}
+{% block robots %}noindex,follow{% endblock %}
+{% block content %}
+<section class="otz-section otz-section--narrow">
+  <p class="otz-eyebrow">Launch QA</p>
+  <h1>Indexing monitor</h1>
+  <p class="otz-lead">Мониторинг submitted / indexed / noindex / empty profiles перед запуском и после отправки sitemap.</p>
+  <div class="otz-trust-strip"><span>Submitted: {{ submitted_count }}</span><span>Indexed: {{ indexed_count }}</span><span>Noindex: {{ noindex_count }}</span><span>Empty profiles: {{ empty_profile_count }}</span><span>Launch risks: {{ launch_risk_count }}</span></div>
+  <article class="otz-card otz-stack">
+    <h2>40-gate indexing readiness</h2>
+    <p>Submitted URLs · Indexed URLs · Noindex inventory · Empty profile suppression · HTTP error risk</p>
+    <p>Submitted but 404 · Indexed empty profile · <a href="/admin/launch-qa/seo-audit-export.csv">Export SEO audit CSV</a></p>
+  </article>
+  <article class="otz-card"><h2>Tracked URLs</h2><ul class="otz-list">{% for row in rows %}<li><strong>{{ row.url }}</strong> <span class="otz-badge">{{ row.get_index_status_display }}</span><p>Type: {{ row.page_type }} · HTTP: {{ row.http_status|default:"unknown" }}{% if row.is_empty_profile %} · Empty profile{% endif %}{% if row.has_launch_risk %} · Launch risk{% endif %}</p>{% if row.notes %}<p>{{ row.notes }}</p>{% endif %}</li>{% empty %}<li>No indexing monitor URLs yet.</li>{% endfor %}</ul></article>
+</section>
+{% endblock %}

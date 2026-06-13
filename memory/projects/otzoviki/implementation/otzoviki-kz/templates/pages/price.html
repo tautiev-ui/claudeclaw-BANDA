@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block content %}
+<section class="otz-container otz-section">
+  <div class="otz-panel otz-stack">
+    <div class="otz-eyebrow">price guide</div>
+    <h1 class="otz-h1">Цены на ремонт квартир в {{ city.name }}</h1>
+    <p class="otz-text">Ценовая страница помогает сравнить подрядчиков и правильно читать смету. Информация не является публичной офертой: итоговая стоимость зависит от площади, состояния объекта, материалов и договора.</p>
+    <p>Проверяйте смету, договор, состав работ, гарантию и источник отзывов перед оплатой аванса.</p>
+    <p><a href="{{ service_url }}">Компании по ремонту квартир</a> · <a href="{{ ranking_url }}">Рейтинг компаний</a> · <a href="/methodology/">Методология</a></p>
+    {% if not has_enough_data %}<div class="otz-card">Недостаточно данных для ценовой страницы — страница остаётся noindex до наполнения.</div>{% endif %}
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Ориентиры и ограничения</h2>
+      <p>Цены являются ориентиром, а не обещанием итоговой стоимости. Сравнивайте одинаковый состав работ, материалы, сроки, гарантию и этапы оплаты.</p>
+      <ul>
+        <li>фиксируйте перечень черновых и чистовых работ;</li>
+        <li>разделяйте материалы, доставку и работу;</li>
+        <li>привязывайте этапы оплаты к фактической приёмке;</li>
+        <li>сохраняйте договор, акты и переписку.</li>
+      </ul>
+    </div>
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Риски в смете</h2>
+      <ul>
+        <li>скрытые работы без цены за единицу;</li>
+        <li>слишком низкая стартовая оценка без осмотра объекта;</li>
+        <li>нет сроков, гарантий и условий допработ;</li>
+        <li>нет реквизитов, договора или понятной процедуры претензий.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Что сравнивать в смете</h2>
+      <ul>
+        <li>перечень черновых и чистовых работ;</li>
+        <li>материалы и кто их закупает;</li>
+        <li>сроки, этапы оплаты и штрафы;</li>
+        <li>гарантия и порядок приёмки.</li>
+      </ul>
+    </div>
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Компании в городе</h2>
+      {% for card in company_cards %}
+        <p><a href="{{ card.company.get_absolute_url }}">{{ card.company.name }}</a></p>
+      {% empty %}
+        <p>Компании для сравнения скоро будут добавлены.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-card otz-stack">
+    <h2 class="otz-h2">Частые вопросы о ценах в {{ city.name }}</h2>
+    <h3>Как понять, что смета занижена?</h3>
+    <p>Проверьте, есть ли осмотр объекта, полный состав работ, единицы измерения, материалы, скрытые работы, сроки и гарантия. Слишком низкая цена без детализации часто означает будущие доплаты.</p>
+    <h3>Что важнее: цена или отзывы?</h3>
+    <p>Сравнивайте цену вместе с отзывами, досье компании, официальными ответами и условиями договора. Самая низкая цена не всегда снижает риск.</p>
+  </div>
+</section>
+{% endblock %}

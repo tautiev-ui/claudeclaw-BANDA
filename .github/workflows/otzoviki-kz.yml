@@ -1,0 +1,39 @@
+name: Otzoviki KZ CI
+
+on:
+  pull_request:
+    paths:
+      - "memory/projects/otzoviki/implementation/otzoviki-kz/**"
+      - "memory/projects/otzoviki/launch-cut-gate-freeze-2026-06-12.md"
+      - ".github/workflows/otzoviki-kz.yml"
+  push:
+    branches: [main]
+    paths:
+      - "memory/projects/otzoviki/implementation/otzoviki-kz/**"
+      - "memory/projects/otzoviki/launch-cut-gate-freeze-2026-06-12.md"
+      - ".github/workflows/otzoviki-kz.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: memory/projects/otzoviki/implementation/otzoviki-kz
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "Django>=5.0,<5.3" "psycopg[binary]>=3.2" "redis>=5" "meilisearch>=0.31" "django-environ>=0.11" "whitenoise>=6.7" "gunicorn>=22" "pytest>=8" "pytest-django>=4.8"
+      - name: Django system check
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.dev
+        run: python manage.py check
+      - name: Tests
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.dev
+        run: pytest -q

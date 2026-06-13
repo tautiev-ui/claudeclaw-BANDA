@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block content %}
+<section class="otz-section otz-section--narrow">
+  <p class="otz-eyebrow">Launch operations</p>
+  <h1>Launch operations hub</h1>
+  <p class="otz-lead">100-gate launch operations hub. Staff-only operations surface for launch-cut SEO, moderation, B2B identity, indexability, freshness and AI/Yandex readiness. Robots: noindex,follow.</p>
+
+  <article class="otz-card otz-stack">
+    <h2>Operations links</h2>
+    <ul class="otz-list">
+      {% for label, url in ops_links %}<li><a href="{{ url }}">{{ label }}</a></li>{% endfor %}
+    </ul>
+  </article>
+
+  <article class="otz-card otz-stack">
+    <h2>100-gate matrix</h2>
+    <ol class="otz-list">
+      {% for gate in ops_gates %}<li>{{ gate }}</li>{% endfor %}
+    </ol>
+  </article>
+</section>
+{% endblock %}

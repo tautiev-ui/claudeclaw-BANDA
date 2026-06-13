@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block content %}
+<section class="otz-section otz-section--narrow">
+  <p class="otz-eyebrow">Launch QA</p>
+  <h1>Launch route smoke matrix</h1>
+  <p class="otz-lead">100-gate route smoke matrix. Staff-only route QA surface for status, robots, canonical, schema, sitemap and auth expectations. Robots: noindex,follow.</p>
+
+  <p><a class="otz-button" href="{{ route_smoke_export_url }}">Download route smoke CSV export</a></p>
+  <p><a class="otz-button" href="{{ route_smoke_json_url }}">Download route smoke JSON export</a></p>
+  <p><a class="otz-button" href="{{ route_smoke_live_url }}">Run route smoke live JSON</a></p>
+  <p><a class="otz-button" href="{{ launch_blocker_url }}">Open launch blocker dashboard</a></p>
+  <p><a class="otz-button" href="{{ launch_blocker_json_url }}">Download launch blocker JSON</a></p>
+  <p><a class="otz-button" href="{{ release_readiness_url }}">Download release readiness JSON</a></p>
+  <p><a class="otz-button" href="{{ deployment_handoff_url }}">Open deployment handoff dashboard</a></p>
+  <p><a class="otz-button" href="{{ deployment_handoff_json_url }}">Download deployment handoff JSON</a></p>
+  <p><a class="otz-button" href="{{ deployment_handoff_csv_url }}">Download deployment handoff CSV</a></p>
+  <p><a class="otz-button" href="{{ deployment_handoff_live_url }}">Run deployment handoff live JSON</a></p>
+
+  <article class="otz-card otz-stack">
+    <h2>Route expectation matrix</h2>
+    <ul class="otz-list">
+      {% for label, path, status, robots, notes in route_rows %}
+        <li><strong>{{ label }}</strong> · {{ path }} · expected: {{ status }} · {{ robots }} · {{ notes }}</li>
+      {% endfor %}
+    </ul>
+  </article>
+
+  <article class="otz-card otz-stack">
+    <h2>100 route-smoke gates</h2>
+    <ol class="otz-list">
+      {% for gate in route_gates %}<li>{{ gate }}</li>{% endfor %}
+    </ol>
+  </article>
+</section>
+{% endblock %}

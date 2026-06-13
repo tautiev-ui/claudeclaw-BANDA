@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block robots %}{{ robots_meta }}{% endblock %}
+{% block content %}
+<section class="otz-container otz-section">
+  <div class="otz-panel otz-stack">
+    <div class="otz-eyebrow">Private workspace</div>
+    <h1 class="otz-h1">Business dashboard</h1>
+    <p class="otz-text">70-gate private B2B workspace. Private workspace for verified business representatives. This route is auth-protected and excluded from indexing: noindex private workspace.</p>
+    <p class="otz-muted">Identity source: logged-in account email · {{ user_email }}</p>
+    <p class="otz-text"><strong>Paid profile does not affect rating</strong>, ranking, reviews, indexability, or editorial conclusions.</p>
+    <p class="otz-muted">No review deletion privilege · No rating override privilege · No schema/indexing override privilege · Public dossier remains canonical · Private business data is not public evidence · Audit-friendly identity resolution.</p>
+
+    {% if verified_representatives %}
+      <article class="otz-card otz-stack">
+        <h2 class="otz-h2">Verified representative</h2>
+        {% for representative in verified_representatives %}
+          <p>{{ representative.full_name }} · {{ representative.email }} · {{ representative.role_title }}</p>
+          <p>Company management permissions · can_manage_profile: yes · can_submit_official_response: yes</p>
+        {% endfor %}
+      </article>
+    {% endif %}
+
+    {% if pending_representatives %}
+      <article class="otz-card otz-stack">
+        <h2 class="otz-h2">Verification required</h2>
+        {% for representative in pending_representatives %}
+          <p>Pending representative · {{ representative.full_name }} · {{ representative.role_title }}</p>
+          <p>verification_status: {{ representative.verification_status }} · email_verified: {% if representative.email_verified %}yes{% else %}no{% endif %}</p>
+          <p>can_manage_profile: no · can_submit_official_response: no</p>
+        {% endfor %}
+        <p>Actions hidden until approval and email verification. Official response action hidden. Profile management action hidden.</p>
+      </article>
+    {% endif %}
+
+    {% if managed_companies %}
+      <div class="otz-stack">
+        <h2 class="otz-h2">Managed companies</h2>
+        {% for company in managed_companies %}
+          <article class="otz-card">
+            <h3>{{ company.name }}</h3>
+            <p class="otz-text">Управление профилем доступно только подтверждённому представителю.</p>
+            <p>Right-of-reply workflow · <a href="/right-of-reply/">Право на ответ</a></p>
+            <p>Claim/profile changes remain moderated · <a href="/claim-profile/">Claim profile</a></p>
+            <p>Reputation audit · <a href="/reputation-audit/">Reputation audit</a></p>
+            <p>Official responses publish only after moderation.</p>
+            <p><a href="{{ company.get_absolute_url }}">Открыть публичный профиль</a> · <a href="{{ company.get_absolute_url }}official-response/new/">Подать официальный ответ</a></p>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="otz-card">
+        <h2 class="otz-h2">Пока нет подтверждённых компаний</h2>
+        <p class="otz-text">Заявите профиль или дождитесь проверки email и статуса представителя. Без подтверждения действия управления и official response скрыты.</p>
+        <p><a href="/claim-profile/">Claim profile</a> · <a href="/reputation-audit/">Reputation audit</a></p>
+        <p>Paid profile does not affect rating. No review deletion privilege. No rating override privilege.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

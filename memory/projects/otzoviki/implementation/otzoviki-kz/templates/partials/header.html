@@ -1,0 +1,29 @@
+<header class="otz-site-header">
+  <div class="otz-container otz-nav">
+    <a class="otz-logo" href="/" aria-label="Otzoviki KZ">
+      <span class="otz-logo-mark" aria-hidden="true">O</span>
+      <span>Otzoviki</span>
+    </a>
+    <nav class="otz-nav-links" aria-label="Основная навигация">
+      <a href="/kz/">Компании</a>
+      <a href="/kz/almaty/reyting-remontnyh-kompaniy/">Рейтинги</a>
+      <a href="/kz/guides/">Гайды</a>
+      <a href="/methodology/">Методология</a>
+    </nav>
+    <div class="otz-city-selector" data-city-selector="true">
+      <span class="otz-muted">Город:</span>
+      {% for city in city_selector_cities %}
+        <details class="otz-city-choice">
+          <summary>{{ city.name }}</summary>
+          <a href="{{ city.get_absolute_url }}">Хаб</a>
+          <a href="{{ city.get_absolute_url }}remont-kvartir/">Ремонт квартир</a>
+          <a href="{{ city.get_absolute_url }}reyting-remontnyh-kompaniy/">Рейтинг</a>
+          <a href="{{ city.get_absolute_url }}remont-kvartir/ceny/">Цены</a>
+        </details>
+      {% empty %}
+        <a href="/kz/">Казахстан</a>
+      {% endfor %}
+    </div>
+    <a class="otz-btn otz-btn-business" href="/for-business/">Для бизнеса</a>
+  </div>
+</header>
