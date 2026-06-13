@@ -56,16 +56,21 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("csv_path")
         parser.add_argument("--report", default="docs/company-import-report.csv")
+        parser.add_argument("--dry-run", action="store_true", help="Validate and report what would be imported without writing to the database.")
 
     def handle(self, *args, **options):
         csv_path = Path(options["csv_path"])
         if not csv_path.exists():
             raise CommandError(f"CSV not found: {csv_path}")
         report_path = Path(options["report"])
+        dry_run = options["dry_run"]
         report_path.parent.mkdir(parents=True, exist_ok=True)
         now = timezone.now()
-        kz, _ = Country.objects.get_or_create(code="KZ", defaults={"name": "Казахстан", "slug": "kz", "is_active": True})
-        service_category, _ = ServiceCategory.objects.get_or_create(slug="remont-i-stroitelstvo", defaults={"name": "Ремонт и строительство", "is_active": True})
+        kz = None
+        service_category = None
+        if not dry_run:
+            kz, _ = Country.objects.get_or_create(code="KZ", defaults={"name": "Казахстан", "slug": "kz", "is_active": True})
+            service_category, _ = ServiceCategory.objects.get_or_create(slug="remont-i-stroitelstvo", defaults={"name": "Ремонт и строительство", "is_active": True})
         rows_out = []
         seen_websites = set(Company.objects.exclude(website_url="").values_list("website_url", flat=True))
         seen_yandex = set(ExternalSource.objects.filter(source_type=ExternalSource.SourceType.YANDEX).values_list("url", flat=True))
@@ -94,10 +99,19 @@ class Command(BaseCommand):
                     continue
                 city_slug = (row.get("city_slug") or "").strip() or "unknown"
                 service_slug = (row.get("service_slug") or "").strip() or "remont-kvartir"
-                city, _ = City.objects.get_or_create(country=kz, slug=city_slug, defaults={"name": city_slug.replace("-", " ").title(), "is_active": True})
-                service, _ = Service.objects.get_or_create(slug=service_slug, defaults={"category": service_category, "name": service_slug.replace("-", " ").title(), "is_active": True})
                 base_slug = slugify_ascii(name)
                 slug = unique_slug(base_slug)
+                if dry_run:
+                    rows_out.append({"row_number": row_number, "name": name, "slug": slug, "status": "dry_run", "reason": "would_create_draft_noindex", "company_id": ""})
+                    if website:
+                        seen_websites.add(website)
+                    if yandex_url:
+                        seen_yandex.add(yandex_url)
+                    if two_gis_url:
+                        seen_2gis.add(two_gis_url)
+                    continue
+                city, _ = City.objects.get_or_create(country=kz, slug=city_slug, defaults={"name": city_slug.replace("-", " ").title(), "is_active": True})
+                service, _ = Service.objects.get_or_create(slug=service_slug, defaults={"category": service_category, "name": service_slug.replace("-", " ").title(), "is_active": True})
                 company = Company.objects.create(
                     name=name,
                     slug=slug,

@@ -57,3 +57,21 @@ def test_company_import_template_exists_and_contains_required_headers():
         "two_gis_url",
         "short_description",
     ]
+
+
+@pytest.mark.django_db
+def test_import_company_dossiers_dry_run_writes_report_without_database_mutation(tmp_path):
+    csv_path = tmp_path / "companies.csv"
+    report_path = tmp_path / "dry-run-report.csv"
+    csv_path.write_text(
+        "name,city_slug,service_slug,website_url,phone,yandex_url,two_gis_url,short_description\n"
+        "Ремонт Тест,astana,remont-kvartir,https://dry.example,+77000000003,https://yandex.kz/maps/org/dry,https://2gis.kz/astana/firm/dry,Тестовая компания\n"
+    )
+
+    call_command("import_company_dossiers", str(csv_path), report=str(report_path), dry_run=True)
+
+    rows = list(csv.DictReader(io.StringIO(report_path.read_text())))
+    assert rows[0]["status"] == "dry_run"
+    assert rows[0]["reason"] == "would_create_draft_noindex"
+    assert rows[0]["company_id"] == ""
+    assert Company.objects.filter(name="Ремонт Тест").count() == 0
