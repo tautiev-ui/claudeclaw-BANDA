@@ -1,0 +1,21 @@
+[Unit]
+Description=Otzoviki KZ Django SSR application
+After=network.target
+
+[Service]
+Type=simple
+User=otzoviki
+Group=www-data
+WorkingDirectory=/srv/otzoviki/current
+EnvironmentFile=/etc/otzoviki/otzoviki.env
+Environment=DJANGO_SETTINGS_MODULE=config.settings.prod
+ExecStart=/srv/otzoviki/current/.venv/bin/gunicorn config.wsgi:application --bind 127.0.0.1:8000 --workers 3 --timeout 60
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/srv/otzoviki/current /var/log/otzoviki
+
+[Install]
+WantedBy=multi-user.target
