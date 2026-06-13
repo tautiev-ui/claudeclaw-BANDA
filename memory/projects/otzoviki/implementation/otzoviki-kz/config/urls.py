@@ -3,6 +3,7 @@ from django.urls import path
 
 from apps.ai_evidence.views import ai_evidence_capture
 from apps.business.views import claim_profile, private_business_workspace, reputation_audit, submit_official_response
+from apps.companies.views import company_publish_readiness_csv
 from apps.core.views import health, home
 from apps.keywords.views import keyword_page_map_export_csv, keyword_report, markin_next_wave_export_csv, markin_relevance_blocks_csv
 from apps.launchqa.launch_cut_views import (
@@ -45,6 +46,7 @@ urlpatterns = [
     path('admin/keywords/page-map-export.csv', keyword_page_map_export_csv, name='keyword_page_map_export_csv'),
     path('admin/keywords/markin-next-wave.csv', markin_next_wave_export_csv, name='markin_next_wave_export_csv'),
     path('admin/keywords/markin-relevance-blocks.csv', markin_relevance_blocks_csv, name='markin_relevance_blocks_csv'),
+    path('admin/companies/publish-readiness.csv', company_publish_readiness_csv, name='company_publish_readiness_csv'),
     path('admin/launch-qa/', launch_ops_hub, name='launch_ops_hub'),
     path('admin/launch-qa/blockers/', launch_blocker_dashboard, name='launch_blocker_dashboard'),
     path('admin/launch-qa/blockers.json', launch_blocker_json, name='launch_blocker_json'),
