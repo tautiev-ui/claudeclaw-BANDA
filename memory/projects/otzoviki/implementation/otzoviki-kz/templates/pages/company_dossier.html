@@ -34,6 +34,16 @@
         <li><strong>Google Business:</strong> проверить консистентность NAP и международный след.</li>
       </ul>
       <p class="otz-muted">Внешний след — источник проверки, а не импорт чужих отзывов в рейтинг Otzoviki.</p>
+      <h3>Проверенные внешние источники</h3>
+      {% if external_sources %}
+        <ul>
+          {% for source in external_sources %}
+            <li><a href="{{ source.url }}" rel="nofollow noopener noreferrer" target="_blank">{{ source.name }}</a> — {{ source.public_label }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="otz-muted">Проверенные Yandex/2GIS/Google источники ещё не привязаны.</p>
+      {% endif %}
     </div>
   </div>
 </section>

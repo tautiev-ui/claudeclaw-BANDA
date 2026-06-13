@@ -5,7 +5,7 @@ from django.utils import timezone
 from apps.ai_evidence.models import AIYandexEvidenceLog
 from apps.business.models import BusinessAccount, BusinessRepresentative, OfficialResponse
 from apps.companies.models import Company, CompanyService
-from apps.evidence.models import Evidence
+from apps.evidence.models import Evidence, ExternalSource
 from apps.locations.models import City, Country
 from apps.reviews.models import RatingSnapshot, Review
 from apps.seo.indexability import IndexabilityStatus
@@ -36,6 +36,8 @@ def test_company_dossier_renders_public_reviews_evidence_response_and_ai_logs(cl
     Review.objects.create(company=company, author_name="Черновик", title="Не видно", body="Pending", status=Review.Status.PENDING, quality_rating=1, timeline_rating=1, communication_rating=1)
     Evidence.objects.create(company=company, evidence_type=Evidence.EvidenceType.EXTERNAL_FOOTPRINT, title="Карточка Яндекс", claim="Есть карточка в Яндекс Картах", source_url="https://yandex.kz/maps/org/example/", visibility=Evidence.Visibility.PUBLIC, captured_at=timezone.now())
     Evidence.objects.create(company=company, evidence_type=Evidence.EvidenceType.PRIVATE_PROOF, title="Договор клиента", claim="Private", visibility=Evidence.Visibility.PRIVATE, captured_at=timezone.now())
+    ExternalSource.objects.create(company=company, source_type=ExternalSource.SourceType.YANDEX, name="Яндекс Бизнес", url="https://yandex.ru/maps/org/alma-remont", same_as_verified=True, captured_at=timezone.now())
+    ExternalSource.objects.create(company=company, source_type=ExternalSource.SourceType.TWO_GIS, name="2ГИС", url="https://2gis.kz/almaty/firm/alma-remont", same_as_verified=True, captured_at=timezone.now())
     account = BusinessAccount.objects.create(company=company, display_name="Alma Business")
     representative = BusinessRepresentative.objects.create(account=account, full_name="Айдар", email="owner@example.com")
     OfficialResponse.objects.create(company=company, representative=representative, body="Готовы предоставить акты и гарантию.", status=OfficialResponse.Status.PUBLISHED)
@@ -90,6 +92,12 @@ def test_company_dossier_renders_public_reviews_evidence_response_and_ai_logs(cl
     assert "Evidence locker" in html
     assert "Profile completeness" in html
     assert "Claim / audit CTA" in html
+    assert "Проверенные внешние источники" in html
+    assert "Яндекс Бизнес" in html
+    assert "2ГИС" in html
+    assert 'href="https://yandex.ru/maps/org/alma-remont" rel="nofollow noopener noreferrer" target="_blank"' in html
+    assert 'href="https://2gis.kz/almaty/firm/alma-remont" rel="nofollow noopener noreferrer" target="_blank"' in html
+    assert "sameAs verified" in html
     assert "Не видно" not in html
     assert "Договор клиента" not in html
 
