@@ -59,6 +59,23 @@ def test_company_import_template_exists_and_contains_required_headers():
     ]
 
 
+def test_company_import_dry_run_operator_artifacts_exist():
+    runbook = Path("docs/company-import-dry-run-pipeline.md")
+    sample = Path("docs/company-import-real-companies-sample.csv")
+    assert runbook.exists()
+    assert sample.exists()
+    runbook_text = runbook.read_text()
+    assert "import_company_dossiers docs/company-import-real-companies-sample.csv --dry-run" in runbook_text
+    assert "publish_company_dossiers --dry-run" in runbook_text
+    assert "draft/noindex" in runbook_text
+    assert "Не запускать publish без проверки report" in runbook_text
+    sample_rows = list(csv.DictReader(sample.open()))
+    assert len(sample_rows) >= 3
+    assert all(row["city_slug"] == "almaty" for row in sample_rows)
+    assert all(row["service_slug"] == "remont-kvartir" for row in sample_rows)
+    assert all(row["yandex_url"].startswith("https://yandex.kz/maps/") for row in sample_rows)
+
+
 @pytest.mark.django_db
 def test_import_company_dossiers_dry_run_writes_report_without_database_mutation(tmp_path):
     csv_path = tmp_path / "companies.csv"

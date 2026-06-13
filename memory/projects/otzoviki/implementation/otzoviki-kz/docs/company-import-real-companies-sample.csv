@@ -1,0 +1,4 @@
+name,city_slug,service_slug,website_url,phone,yandex_url,two_gis_url,short_description
+Almaty Remont Expert,almaty,remont-kvartir,https://almaty-remont-expert.example,+77010000011,https://yandex.kz/maps/org/almaty-remont-expert/,https://2gis.kz/almaty/firm/almaty-remont-expert,Подрядчик по ремонту квартир в Алматы; карточка требует проверки источников и отзывов.
+Smeta Pro Almaty,almaty,remont-kvartir,https://smeta-pro-almaty.example,+77010000012,https://yandex.kz/maps/org/smeta-pro-almaty/,https://2gis.kz/almaty/firm/smeta-pro-almaty,Компания для проверки смет и отзывов; импортировать как draft/noindex до верификации.
+Dom Remont KZ,almaty,remont-kvartir,https://dom-remont-kz.example,+77010000013,https://yandex.kz/maps/org/dom-remont-kz/,https://2gis.kz/almaty/firm/dom-remont-kz,Ремонт квартир под ключ в Алматы; внешний след и право на ответ проверяются отдельно.
