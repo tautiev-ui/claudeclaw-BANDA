@@ -79,6 +79,17 @@ def test_company_dossier_renders_public_reviews_evidence_response_and_ai_logs(cl
     assert "/methodology/" in html
     assert "/reputation-audit/" in html
     assert "/kz/company/alma-remont/official-response/new/" in html
+    assert "Репутационный паспорт" in html
+    assert "Внешний след по площадкам" in html
+    assert "Yandex Maps" in html
+    assert "2GIS" in html
+    assert "Google Business" in html
+    assert "Review intelligence" in html
+    assert "Плюсы" in html
+    assert "Минусы и риски" in html
+    assert "Evidence locker" in html
+    assert "Profile completeness" in html
+    assert "Claim / audit CTA" in html
     assert "Не видно" not in html
     assert "Договор клиента" not in html
 

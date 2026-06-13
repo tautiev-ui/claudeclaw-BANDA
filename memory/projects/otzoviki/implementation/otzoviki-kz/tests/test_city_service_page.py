@@ -36,6 +36,15 @@ def test_city_service_page_renders_company_cards_and_indexable_when_has_data(cli
     assert "Как сравнивать компании по услуге Ремонт квартир?" in html
     assert "Цены являются ориентиром" in html
     assert "Платный профиль не влияет на рейтинг" in html
+    assert "Фильтры выбора подрядчика" in html
+    assert "город + услуга" in html
+    assert "Сравнительная таблица компаний" in html
+    assert "Яндекс/2ГИС/Google след" in html
+    assert "Ориентиры цен и сметы" in html
+    assert "Черновая отделка" in html
+    assert "Как выбрать подрядчика" in html
+    assert "Собрать shortlist" in html
+    assert "Красные флаги" in html
 
 
 @pytest.mark.django_db

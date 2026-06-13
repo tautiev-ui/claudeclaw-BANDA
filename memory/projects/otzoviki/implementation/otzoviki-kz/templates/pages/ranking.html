@@ -16,6 +16,25 @@
 <section class="otz-container otz-section">
   <div class="otz-grid-2">
     <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Методология выше списка</h2>
+      <p>Сначала показываем правила ранжирования, затем список. Это защищает страницу от ощущения рекламного топа и объясняет, почему место нельзя купить.</p>
+      <ul>
+        <li>основа: модерированные отзывы Otzoviki и rating snapshot;</li>
+        <li>усилители: свежесть, количество сигналов, полнота досье, внешний след;</li>
+        <li>ограничители: жалобы, спорные паттерны, отсутствие ответа на претензии;</li>
+        <li>платные функции не влияют на сортировку.</li>
+      </ul>
+    </div>
+    <div class="otz-card otz-stack">
+      <h2 class="otz-h2">Номинации рейтинга</h2>
+      <p><strong>Номинация</strong> помогает читать список: лидер по проверенным отзывам, сильный внешний след, активное право на ответ, профиль на проверке.</p>
+      <p class="otz-muted">Номинация не заменяет место в рейтинге и должна подтверждаться видимыми сигналами.</p>
+    </div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack">
       <h2 class="otz-h2">Факторы рейтинга</h2>
       <ul>
         <li>количество и свежесть отзывов после модерации;</li>
@@ -28,6 +47,39 @@
       <h2 class="otz-h2">Нейтральность и право на ответ</h2>
       <p>Компания может заявить профиль или дать ответ, но это не меняет оценку, порядок компаний и правила индексации. Платные функции отделены от редакционных выводов.</p>
       <p><a href="/right-of-reply/">Право на ответ</a> · <a href="/for-business/">Для бизнеса</a> · <a href="/review-policy/">Правила отзывов</a></p>
+    </div>
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-card otz-stack">
+    <h2 class="otz-h2">Сравнительная таблица рейтинга</h2>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Место</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Компания</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Номинация</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Жалобы / риск</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Ответ компании</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Почему это место</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for card in company_cards %}
+          <tr>
+            <td style="padding:10px;border-bottom:1px solid #eef1ea">#{{ forloop.counter }}</td>
+            <td style="padding:10px;border-bottom:1px solid #eef1ea"><a href="{{ card.company.get_absolute_url }}">{{ card.company.name }}</a></td>
+            <td style="padding:10px;border-bottom:1px solid #eef1ea">{% if forloop.first %}лидер по проверенным отзывам{% else %}сравнить по досье{% endif %}</td>
+            <td style="padding:10px;border-bottom:1px solid #eef1ea">претензии проверяются через отзывы, доказательства и внешний след</td>
+            <td style="padding:10px;border-bottom:1px solid #eef1ea">смотрите опубликованные ответы в досье</td>
+            <td style="padding:10px;border-bottom:1px solid #eef1ea">{% if card.snapshot %}{% localize off %}{{ card.snapshot.average_rating }}{% endlocalize %} / 5 · {{ card.snapshot.review_count }} отзывов{% else %}недостаточно rating snapshot{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6" style="padding:10px">Компании для рейтинга скоро будут добавлены.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
   </div>
 </section>
