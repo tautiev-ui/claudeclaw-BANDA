@@ -50,7 +50,7 @@
 </section>
 
 <section class="otz-container otz-section">
-  <div class="otz-section-head"><h2 class="otz-h2">Проверенные досье</h2><a class="otz-btn" href="/search/">Найти компанию</a></div>
+  <div class="otz-section-head otz-section-head-modern"><div><div class="otz-eyebrow">Компании на проверке</div><h2 class="otz-h2">Проверенные досье</h2><p class="otz-muted">Карточки подрядчиков: отзывы, источники, контакты и риски в одном месте.</p></div><a class="otz-btn" href="/search/">Найти компанию</a></div>
   <div class="otz-grid-3">
     {% for card in company_cards|slice:":6" %}
       <a class="otz-card otz-stack otz-company-preview-card" href="{{ card.company.get_absolute_url }}">
@@ -70,7 +70,7 @@
 </section>
 
 <section class="otz-container otz-section">
-  <div class="otz-section-head"><h2 class="otz-h2">Города Казахстана</h2><a class="otz-btn" href="/kz/">Все города</a></div>
+  <div class="otz-section-head otz-section-head-modern"><div><div class="otz-eyebrow">География</div><h2 class="otz-h2">Города Казахстана</h2><p class="otz-muted">Начните с города, затем выберите услугу, рейтинг или цены.</p></div><a class="otz-btn" href="/kz/">Все города</a></div>
   <div class="otz-grid-3">
     {% for city in cities %}
       <a class="otz-card" href="{{ city.get_absolute_url }}"><h3>{{ city.name }}</h3><p class="otz-muted">Компании, услуги, рейтинги и цены</p></a>
@@ -82,15 +82,15 @@
 
 <section class="otz-container otz-section">
   <div class="otz-grid-2">
-    <div class="otz-card otz-stack">
+    <div class="otz-card otz-stack otz-how-card">
       <div class="otz-eyebrow">Как пользоваться</div>
       <h2 class="otz-h2">Как быстро проверить подрядчика</h2>
-      <ol>
-        <li>Введите компанию или выберите город.</li>
-        <li>Откройте рейтинг или страницу услуги.</li>
-        <li>Сравните отзывы, источники, ответы и риски.</li>
-        <li>Запросите смету только после проверки.</li>
-      </ol>
+      <div class="otz-step-list">
+        <div><span>1</span><strong>Введите компанию</strong><small>или выберите город и услугу</small></div>
+        <div><span>2</span><strong>Откройте досье</strong><small>рейтинг, отзывы, контакты</small></div>
+        <div><span>3</span><strong>Сравните риски</strong><small>источники, жалобы, ответы</small></div>
+        <div><span>4</span><strong>Просите смету</strong><small>только после проверки</small></div>
+      </div>
     </div>
     <div class="otz-card otz-stack">
       <div class="otz-eyebrow">Для компаний</div>

@@ -72,7 +72,7 @@ def test_homepage_lists_live_cities_companies_and_guides(client):
     assert "Путь как у нормального marketplace" not in html
     assert "Guide checklist" not in html
     assert "Как пользоваться" in html
-    assert "Запросите смету только после проверки" in html
+    assert "Просите смету" in html
 
 
 @pytest.mark.django_db
