@@ -11,7 +11,8 @@ from apps.evidence.models import Evidence
 from apps.guides.models import Guide, GuideCategory
 from apps.locations.models import City
 from apps.qr.models import QRReviewFlow, QRScanEvent, ReviewPlatformLink
-from apps.reviews.models import RatingSnapshot, Review
+from apps.core.ui import build_company_cards
+from apps.reviews.models import Review
 from apps.services.models import Service
 from apps.seo.schema import build_company_schema
 
@@ -89,8 +90,7 @@ def city_hub_page(request, city: str):
             .select_related("company")
             .order_by("company__name")
         )
-        snapshots = {snapshot.company_id: snapshot for snapshot in RatingSnapshot.objects.filter(company__in=[link.company for link in links])}
-        company_cards = [{"company": link.company, "snapshot": snapshots.get(link.company_id)} for link in links]
+        company_cards = build_company_cards([link.company for link in links])
         title = f"Компании и услуги в {city_obj.name}"
         description = f"Городской хаб Otzoviki KZ для {city_obj.name}: компании, отзывы, рейтинг, цены и методология."
     else:
@@ -132,8 +132,7 @@ def city_service_page(request, city: str, service_slug: str):
             .order_by("company__name")
         )
         companies = [link.company for link in company_links]
-        snapshots = {snapshot.company_id: snapshot for snapshot in RatingSnapshot.objects.filter(company__in=companies)}
-        company_cards = [{"company": link.company, "snapshot": snapshots.get(link.company_id)} for link in company_links]
+        company_cards = build_company_cards(companies)
         title = service.public_label(city_obj)
         description = f"Компании, отзывы и методология для услуги {service.name} в {city_obj.name}."
     else:
@@ -178,12 +177,11 @@ def ranking_page(request, city: str):
             CompanyService.objects.filter(city=city_obj, service=service, company__is_active=True)
             .select_related("company")
         )
-        snapshots = {snapshot.company_id: snapshot for snapshot in RatingSnapshot.objects.filter(company__in=[link.company for link in links])}
         company_cards = sorted(
-            [{"company": link.company, "snapshot": snapshots.get(link.company_id)} for link in links],
+            build_company_cards([link.company for link in links]),
             key=lambda card: (
-                card["snapshot"].average_rating if card["snapshot"] else 0,
-                card["snapshot"].review_count if card["snapshot"] else 0,
+                card["rating"],
+                card["review_count"],
                 card["company"].name,
             ),
             reverse=True,
@@ -355,6 +353,7 @@ def company_dossier(request, slug: str):
         "service_links": company.service_links.select_related("city", "service").order_by("city__name", "service__name"),
         "external_sources": company.external_sources.filter(same_as_verified=True).order_by("source_type", "name"),
         "rating_snapshot": getattr(company, "rating_snapshot", None),
+        "company_card": build_company_cards([company])[0],
         "company_schema": json.dumps(company_schema, ensure_ascii=False) if company_schema else "",
     }
     return render(request, "pages/company_dossier.html", context)

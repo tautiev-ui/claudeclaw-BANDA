@@ -9,14 +9,19 @@
   <div class="otz-panel otz-stack">
     <div class="otz-eyebrow">Профиль: {{ company.profile_status }}</div>
     <h1 class="otz-h1">{{ company.name }}: отзывы, рейтинг и проверка компании</h1>
-    <div class="otz-profile-hero">
+    <div class="otz-profile-hero otz-profile-hero-modern">
       <div class="otz-media-placeholder" aria-label="Место для фото компании">
         <span>Фото</span>
         <small>будет после проверки</small>
       </div>
       <div class="otz-stack">
-        {% if company.short_description %}<p class="otz-text">{{ company.short_description }}</p>{% endif %}
-        {% include "partials/trust_strip.html" %}
+        <p class="otz-text">{{ company_card.description }}</p>
+        {% include "partials/trust_score_widget.html" with card=company_card %}
+        <div class="otz-badge-row">
+          {% for badge in company_card.verified_badges %}<span class="otz-safe-badge otz-safe-badge-{{ badge.kind }}">{{ badge.label }}</span>{% endfor %}
+          <span class="otz-risk-pill otz-risk-pill-{{ company_card.risk_badge.kind }}">{{ company_card.risk_badge.label }} — {{ company_card.risk_badge.detail }}</span>
+          <span class="otz-safe-badge otz-safe-badge-response">⏱ {{ company_card.response_label }}</span>
+        </div>
         <div><a class="otz-btn" href="{{ company.get_absolute_url }}reviews/new/">Оставить отзыв</a> <a class="otz-btn otz-btn-business" href="/claim-profile/">Заявить профиль</a> <a class="otz-btn" href="{{ company.get_absolute_url }}official-response/new/">Официальный ответ</a></div>
       </div>
     </div>
@@ -43,6 +48,15 @@
       </div>
       <div class="otz-map-placeholder" aria-label="Место для карты компании"><span>Карта</span><small>адрес и точка появятся после подтверждения источников</small></div>
       <p class="otz-muted">Мы не подставляем выдуманный адрес, телефон или фото: если данных нет, показываем место блока и статус проверки.</p>
+    </div>
+    <div class="otz-card otz-stack" data-photo-gallery-placeholder="true">
+      <h2 class="otz-h2">Фото и примеры работ</h2>
+      <div class="otz-photo-gallery-placeholder">
+        <div><span>До/после</span><small>после подтверждения</small></div>
+        <div><span>Объекты</span><small>после проверки</small></div>
+        <div><span>Команда</span><small>если компания загрузит</small></div>
+      </div>
+      <p class="otz-muted">Галерея появится только из подтверждённых источников или после заявленного профиля. AI-фото и декоративные изображения компаний не используем.</p>
     </div>
     <div class="otz-card otz-stack">
       <h2 class="otz-h2">Внешняя проверка: Яндекс, 2ГИС и Google</h2>

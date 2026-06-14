@@ -32,6 +32,17 @@ INTERNAL_JARGON = [
     "Путь как у нормального marketplace",
 ]
 
+DANGEROUS_FAKE_CLAIMS = [
+    "Обычно отвечает за 2 часа",
+    "Адрес подтверждён",
+    "Телефон верифицирован",
+    "Лицензия проверена",
+    "Background Check",
+    "AI-фото компании",
+    "verified candidate",
+    "source: http",
+]
+
 
 @pytest.mark.django_db
 def test_public_routes_have_visible_breadcrumbs_back_link_and_clear_next_step(client):
@@ -56,6 +67,42 @@ def test_public_routes_do_not_expose_internal_operator_or_tech_jargon(client):
         html = response.content.decode()
         for forbidden in INTERNAL_JARGON:
             assert forbidden not in html, f"{path} exposes {forbidden!r}"
+
+
+@pytest.mark.django_db
+def test_public_routes_do_not_fabricate_dangerous_marketplace_claims(client):
+    seed_local_mvp()
+
+    for path in ["/", "/kz/almaty/remont-kvartir/", "/kz/company/alma-remont/"]:
+        html = client.get(path).content.decode()
+        for forbidden in DANGEROUS_FAKE_CLAIMS:
+            assert forbidden not in html, f"{path} fabricates {forbidden!r}"
+
+
+@pytest.mark.django_db
+def test_safe_marketplace_modules_are_visible(client):
+    seed_local_mvp()
+
+    home = client.get("/").content.decode()
+    assert 'data-trust-score-widget="true"' in home
+    assert 'data-market-company-card="true"' in home
+    assert "Otzoviki Score" in home
+    assert "Ответ компании пока не зафиксирован" in home
+    assert "Источники сверены" in home or "Нужна сверка источников" in home
+
+    service = client.get("/kz/almaty/remont-kvartir/").content.decode()
+    assert "Компании с рейтингом, источниками и рисками" in service
+    assert 'data-market-company-card="true"' in service
+    assert "по рейтингу" in service
+    assert "источники сверены" in service
+    assert "Контакты сверяйте в досье" in service or "Телефон указан в досье" in service
+
+    dossier = client.get("/kz/company/alma-remont/").content.decode()
+    assert 'data-trust-score-widget="true"' in dossier
+    assert 'data-photo-gallery-placeholder="true"' in dossier
+    assert "Фото и примеры работ" in dossier
+    assert "Галерея появится только из подтверждённых источников" in dossier
+    assert "Ответ компании пока не зафиксирован" in dossier
 
 
 @pytest.mark.django_db
@@ -108,7 +155,7 @@ def test_hybrid_required_elements_remain_visible_after_usability_pass(client):
 
     service = client.get("/kz/almaty/remont-kvartir/").content.decode()
     assert "Фото" in service
-    assert "Адрес и карта — в досье после подтверждения источников" in service
+    assert "после проверки" in service
 
     ranking = client.get("/kz/almaty/reyting-remontnyh-kompaniy/").content.decode()
     assert "Фото" in ranking

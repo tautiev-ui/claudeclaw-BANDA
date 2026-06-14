@@ -10,8 +10,18 @@
     <h1 class="otz-h1">{{ service.name }} в {{ city.name }}</h1>
     <p class="otz-text">Сравните подрядчиков по отзывам, рейтингу, источникам проверки, ответам компаний и признакам риска перед запросом сметы.</p>
     <p><a href="/methodology/">Методология</a> · <a href="{{ ranking_url }}">Рейтинг компаний</a></p>
-    <div class="otz-trust-strip" data-ux-filters="true"><span class="otz-chip">район</span><span class="otz-chip">рейтинг</span><span class="otz-chip">отзывы</span><span class="otz-chip">ответ компании</span><span class="otz-chip">Яндекс/2ГИС</span><span class="otz-chip">смета</span></div>
+    <div class="otz-trust-strip" data-ux-filters="true"><span class="otz-chip">район</span><span class="otz-chip">по рейтингу</span><span class="otz-chip">по отзывам</span><span class="otz-chip">ответ компании</span><span class="otz-chip">источники сверены</span><span class="otz-chip">низкий риск</span><span class="otz-chip">смета до аванса</span></div>
     {% if not has_enough_data %}<div class="otz-card">Недостаточно данных для индексации — страница остаётся noindex до наполнения.</div>{% endif %}
+  </div>
+</section>
+<section class="otz-container otz-section">
+  <div class="otz-section-head otz-section-head-modern"><div><div class="otz-eyebrow">Подрядчики для сравнения</div><h2 class="otz-h2">Компании с рейтингом, источниками и рисками</h2><p class="otz-muted">Карточки не скрывают пустые места: контакты, фото и адрес показываются только после подтверждения.</p></div><a class="otz-btn" href="{{ ranking_url }}">Открыть рейтинг</a></div>
+  <div class="otz-market-list">
+    {% for card in company_cards|slice:":8" %}
+      {% include "partials/market_company_card.html" with card=card %}
+    {% empty %}
+      <div class="otz-card">Компании для этой услуги скоро будут добавлены.</div>
+    {% endfor %}
   </div>
 </section>
 <section class="otz-container otz-section">
@@ -114,25 +124,6 @@
     <p>Смотрите не только среднюю оценку, но и количество отзывов, свежесть сигналов, наличие официальных ответов, понятную смету и совпадение услуги с вашим городом.</p>
     <h3>Можно ли ориентироваться на цены?</h3>
     <p>Цены являются ориентиром: итоговая стоимость зависит от объёма работ, материалов, состояния объекта и условий договора. Запрашивайте письменную смету до старта работ.</p>
-  </div>
-</section>
-<section class="otz-container otz-section">
-  <div class="otz-grid-2">
-    {% for card in company_cards %}
-      <a class="otz-card otz-stack otz-company-preview-card" href="{{ card.company.get_absolute_url }}">
-        <div class="otz-card-preview-top">
-          <div class="otz-media-placeholder otz-media-placeholder-sm" aria-hidden="true"><span>Фото</span></div>
-          <div>
-            <h2 class="otz-h2">{{ card.company.name }}</h2>
-            <p>{{ card.company.short_description }}</p>
-          </div>
-        </div>
-        {% if card.snapshot %}<p class="otz-muted">{% localize off %}{{ card.snapshot.average_rating }}{% endlocalize %} · {{ card.snapshot.review_count }} отзывов</p>{% else %}<p class="otz-muted">Рейтинг пока не рассчитан</p>{% endif %}
-        <p class="otz-muted">Адрес и карта — в досье после подтверждения источников.</p>
-      </a>
-    {% empty %}
-      <div class="otz-card">Компании для этой услуги скоро будут добавлены.</div>
-    {% endfor %}
   </div>
 </section>
 {% endblock %}

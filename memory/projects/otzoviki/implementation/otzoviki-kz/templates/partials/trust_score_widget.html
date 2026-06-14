@@ -1,0 +1,20 @@
+{% load l10n %}
+<div class="otz-trust-score" data-trust-score-widget="true">
+  <div class="otz-trust-score-top">
+    <div>
+      <div class="otz-stars" aria-label="Рейтинг Otzoviki">{{ card.stars }}</div>
+      {% if card.snapshot and card.review_count > 0 %}
+        <strong>{% localize off %}{{ card.snapshot.average_rating }}{% endlocalize %} / 5</strong>
+        <span>{{ card.review_count }} отзывов</span>
+      {% else %}
+        <strong>Рейтинг собирается</strong>
+        <span>публичных отзывов пока мало</span>
+      {% endif %}
+    </div>
+    <div class="otz-trust-score-badge">Otzoviki Score</div>
+  </div>
+  <div class="otz-trust-meter" aria-hidden="true"><span style="width: {{ card.trust_bar_width }}%"></span></div>
+  <div class="otz-trust-score-meta">
+    {% for badge in card.verified_badges|slice:":2" %}<span class="otz-safe-badge otz-safe-badge-{{ badge.kind }}">{{ badge.label }}</span>{% endfor %}
+  </div>
+</div>
