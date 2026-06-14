@@ -11,7 +11,7 @@
       <h1 class="otz-h1">Проверьте ремонтную компанию до оплаты</h1>
       <p class="otz-text">Найдите подрядчика, сравните отзывы, рейтинг, контакты, Яндекс/2ГИС и признаки риска перед договором.</p>
       <div class="otz-home-search-card">
-        {% include "partials/search_box.html" with placeholder="Введите название компании или услугу" button_label="Проверить" %}
+        {% include "partials/search_box.html" with placeholder="Компания или услуга" button_label="Проверить" %}
         <div class="otz-home-popular" aria-label="Популярные проверки">
           <a href="/kz/almaty/remont-kvartir/">Ремонт квартир в Алматы</a>
           <a href="/kz/almaty/reyting-remontnyh-kompaniy/">Рейтинг компаний</a>
@@ -19,12 +19,19 @@
         </div>
       </div>
     </div>
-    <aside class="otz-home-summary" aria-label="Что покажем в проверке">
-      <div class="otz-label">Что покажем</div>
+    <aside class="otz-home-summary otz-trust-map" aria-label="Как устроена проверка">
+      <div class="otz-label">Проверка перед авансом</div>
+      <div class="otz-trust-orbit" aria-hidden="true">
+        <span class="otz-orbit-node is-main">договор</span>
+        <span class="otz-orbit-node is-reviews">отзывы</span>
+        <span class="otz-orbit-node is-contacts">контакты</span>
+        <span class="otz-orbit-node is-sources">Яндекс/2ГИС</span>
+        <span class="otz-orbit-node is-risks">риски</span>
+      </div>
       <ul>
         <li><strong>Отзывы и рейтинг</strong><span>без продажи места в топе</span></li>
         <li><strong>Адрес, сайт, телефон</strong><span>только если подтверждены</span></li>
-        <li><strong>Яндекс и 2ГИС</strong><span>ссылки на внешние источники</span></li>
+        <li><strong>Внешние источники</strong><span>Яндекс, 2ГИС и Google</span></li>
         <li><strong>Риски перед авансом</strong><span>смета, сроки, жалобы, ответ компании</span></li>
       </ul>
     </aside>
@@ -36,6 +43,10 @@
   <a class="otz-action-card" href="/kz/almaty/reyting-remontnyh-kompaniy/"><span>02</span><strong>Сравнить рейтинг</strong><small>Отзывы, риски, официальный ответ</small></a>
   <a class="otz-action-card" href="/search/"><span>03</span><strong>Найти компанию</strong><small>Проверка по названию</small></a>
   <a class="otz-action-card" href="/kz/guides/kak-proverit-remontnuyu-kompaniyu/"><span>04</span><strong>Понять, что проверять</strong><small>Короткий чеклист перед договором</small></a>
+</section>
+
+<section class="otz-container otz-home-seo-intro" aria-label="О сервисе">
+  <p><strong>Otzoviki KZ помогает сравнить ремонтные компании Казахстана по отзывам, рейтингу и внешним источникам.</strong> Начните с общей проверки, затем переходите к городу, услуге, смете и конкретному досье подрядчика.</p>
 </section>
 
 <section class="otz-container otz-section">
@@ -73,7 +84,7 @@
   <div class="otz-grid-2">
     <div class="otz-card otz-stack">
       <div class="otz-eyebrow">Как пользоваться</div>
-      <h2 class="otz-h2">Путь как у нормального marketplace</h2>
+      <h2 class="otz-h2">Как быстро проверить подрядчика</h2>
       <ol>
         <li>Введите компанию или выберите город.</li>
         <li>Откройте рейтинг или страницу услуги.</li>

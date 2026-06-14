@@ -28,6 +28,8 @@ INTERNAL_JARGON = [
     "AI notes",
     "AI reputation notes",
     "Launch-ready",
+    "Guide checklist",
+    "Путь как у нормального marketplace",
 ]
 
 
@@ -61,7 +63,7 @@ def test_hybrid_required_elements_remain_visible_after_usability_pass(client):
     seed_local_mvp()
 
     home = client.get("/").content.decode()
-    assert "Введите название компании или услугу" in home
+    assert "Компания или услуга" in home
     assert "Города Казахстана" in home
     assert "Проверенные досье" in home
     assert "Для компаний" in home

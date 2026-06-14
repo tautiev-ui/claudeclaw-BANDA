@@ -10,6 +10,9 @@
   {% if canonical_url %}<link rel="canonical" href="{{ canonical_url }}">{% endif %}
   {% if YANDEX_VERIFICATION %}<meta name="yandex-verification" content="{{ YANDEX_VERIFICATION }}">{% endif %}
   {% if GOOGLE_SITE_VERIFICATION %}<meta name="google-site-verification" content="{{ GOOGLE_SITE_VERIFICATION }}">{% endif %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,700;7..72,850&family=Manrope:wght@400;600;700;800;900&display=swap&subset=cyrillic" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/otzoviki-design-system.css' %}">
   {% block extra_head %}{% endblock %}
   {% if breadcrumb_json_ld %}<script type="application/ld+json">{{ breadcrumb_json_ld|safe }}</script>{% endif %}

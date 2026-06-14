@@ -64,9 +64,13 @@ def test_homepage_lists_live_cities_companies_and_guides(client):
     assert "SEO-first SSR" not in html
     assert "50–100" not in html
     assert "открытием индексации" not in html
-    assert "Введите название компании или услугу" in html
+    assert "Компания или услуга" in html
     assert "Проверьте ремонтную компанию до оплаты" in html
     assert "Проверенные досье" in html
+    assert "Как быстро проверить подрядчика" in html
+    assert "Чеклист перед договором" in html
+    assert "Путь как у нормального marketplace" not in html
+    assert "Guide checklist" not in html
     assert "Как пользоваться" in html
     assert "Запросите смету только после проверки" in html
 
