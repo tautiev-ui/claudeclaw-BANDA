@@ -53,10 +53,10 @@ def test_company_dossier_renders_public_reviews_evidence_response_and_ai_logs(cl
     assert '"@type": "HomeAndConstructionBusiness"' in html
     assert '"aggregateRating"' in html
     assert "Ремонт квартир в Алматы" in html
-    assert "Trust summary" in html
+    assert "Отзывы и рейтинг" in html
     assert "claimed" in html
-    assert "sources: 3" in html
-    assert "methodology: mvp-1" in html
+    assert "источников: 3" in html
+    assert "методология mvp-1" in html
     assert "Услуги и города" in html
     assert "/kz/almaty/remont-kvartir/" in html
     assert "Рейтинг Otzoviki" in html
@@ -67,12 +67,12 @@ def test_company_dossier_renders_public_reviews_evidence_response_and_ai_logs(cl
     assert "Как читать это досье" in html
     assert "Отзывы Otzoviki" in html
     assert "Сдали по акту" in html
-    assert "External footprint" in html
+    assert "Внешняя проверка" in html
     assert "Карточка Яндекс" in html
     assert 'href="https://yandex.kz/maps/org/example/" rel="nofollow noopener noreferrer" target="_blank"' in html
     assert "Официальный ответ" in html
     assert "Готовы предоставить акты" in html
-    assert "Yandex / AI evidence" in html
+    assert "Проверка в Яндексе и поисковых ответах" in html
     assert "Alma Remont отзывы" in html
     assert "Приватные доказательства не публикуются" in html
     assert "Платный профиль не влияет на рейтинг" in html
@@ -81,17 +81,17 @@ def test_company_dossier_renders_public_reviews_evidence_response_and_ai_logs(cl
     assert "/methodology/" in html
     assert "/reputation-audit/" in html
     assert "/kz/company/alma-remont/official-response/new/" in html
-    assert "Репутационный паспорт" in html
-    assert "Внешний след по площадкам" in html
-    assert "Yandex Maps" in html
-    assert "2GIS" in html
-    assert "Google Business" in html
-    assert "Review intelligence" in html
+    assert "Короткий вывод: стоит ли обращаться" in html
+    assert "Внешняя проверка: Яндекс, 2ГИС и Google" in html
+    assert "Яндекс Карты" in html
+    assert "2ГИС" in html
+    assert "Google" in html
+    assert "Жалобы и риски" in html
     assert "Плюсы" in html
     assert "Минусы и риски" in html
-    assert "Evidence locker" in html
-    assert "Profile completeness" in html
-    assert "Claim / audit CTA" in html
+    assert "Доказательства" in html
+    assert "Заполненность профиля" in html
+    assert "Профиль и аудит" in html
     assert "Проверенные внешние источники" in html
     assert "Яндекс Бизнес" in html
     assert "2ГИС" in html

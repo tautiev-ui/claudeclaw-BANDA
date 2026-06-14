@@ -62,6 +62,7 @@ TEMPLATES = [{
             'django.contrib.auth.context_processors.auth',
             'django.contrib.messages.context_processors.messages',
             'apps.core.context_processors.city_selector',
+            'apps.core.context_processors.public_navigation',
         ],
     },
 }]

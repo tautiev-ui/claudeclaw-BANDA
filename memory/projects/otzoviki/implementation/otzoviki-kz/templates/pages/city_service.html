@@ -6,10 +6,11 @@
 {% block content %}
 <section class="otz-container otz-section">
   <div class="otz-panel otz-stack">
-    <div class="otz-eyebrow">city service</div>
+    <div class="otz-eyebrow">Сравнение подрядчиков</div>
     <h1 class="otz-h1">{{ service.name }} в {{ city.name }}</h1>
-    <p class="otz-text">Компании, отзывы, внешний след и методология отбора. Сравнивайте подрядчиков по проверяемым сигналам: отзывам, доказательствам, ответам компаний и прозрачности профиля.</p>
+    <p class="otz-text">Сравните подрядчиков по отзывам, рейтингу, источникам проверки, ответам компаний и признакам риска перед запросом сметы.</p>
     <p><a href="/methodology/">Методология</a> · <a href="{{ ranking_url }}">Рейтинг компаний</a></p>
+    <div class="otz-trust-strip" data-ux-filters="true"><span class="otz-chip">район</span><span class="otz-chip">рейтинг</span><span class="otz-chip">отзывы</span><span class="otz-chip">ответ компании</span><span class="otz-chip">Яндекс/2ГИС</span><span class="otz-chip">смета</span></div>
     {% if not has_enough_data %}<div class="otz-card">Недостаточно данных для индексации — страница остаётся noindex до наполнения.</div>{% endif %}
   </div>
 </section>
@@ -26,7 +27,7 @@
       </ul>
     </div>
     <div class="otz-card otz-stack">
-      <h2 class="otz-h2">Ориентиры цен и сметы</h2>
+      <h2 class="otz-h2">Цены и смета</h2>
       <p>Цена не является офертой: используйте её только как контрольный диапазон перед запросом письменной сметы.</p>
       <ul>
         <li><strong>Черновая отделка:</strong> демонтаж, выравнивание, инженерия, подготовка стен и пола;</li>
@@ -46,7 +47,7 @@
             <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Компания</th>
             <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Рейтинг Otzoviki</th>
             <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Яндекс/2ГИС/Google след</th>
-            <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Shortlist action</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Следующий шаг</th>
           </tr>
         </thead>
         <tbody>
@@ -86,9 +87,9 @@
 <section class="otz-container otz-section">
   <div class="otz-grid-2">
     <div class="otz-card otz-stack">
-      <h2 class="otz-h2">Как выбрать подрядчика</h2>
+      <h2 class="otz-h2">Как выбрать компанию</h2>
       <ol>
-        <li>Собрать shortlist из 3–5 компаний с совпадением города и услуги.</li>
+        <li>Выбрать 3–5 компаний с совпадением города и услуги.</li>
         <li>Сравнить досье: отзывы, источник претензий, внешний след, официальный ответ.</li>
         <li>Запросить смету с этапами, материалами, сроками, гарантией и актом сдачи.</li>
         <li>Не платить крупный аванс без договора, реквизитов и понятного графика работ.</li>
@@ -117,10 +118,16 @@
 <section class="otz-container otz-section">
   <div class="otz-grid-2">
     {% for card in company_cards %}
-      <a class="otz-card otz-stack" href="{{ card.company.get_absolute_url }}">
-        <h2 class="otz-h2">{{ card.company.name }}</h2>
-        <p>{{ card.company.short_description }}</p>
+      <a class="otz-card otz-stack otz-company-preview-card" href="{{ card.company.get_absolute_url }}">
+        <div class="otz-card-preview-top">
+          <div class="otz-media-placeholder otz-media-placeholder-sm" aria-hidden="true"><span>Фото</span></div>
+          <div>
+            <h2 class="otz-h2">{{ card.company.name }}</h2>
+            <p>{{ card.company.short_description }}</p>
+          </div>
+        </div>
         {% if card.snapshot %}<p class="otz-muted">{% localize off %}{{ card.snapshot.average_rating }}{% endlocalize %} · {{ card.snapshot.review_count }} отзывов</p>{% else %}<p class="otz-muted">Рейтинг пока не рассчитан</p>{% endif %}
+        <p class="otz-muted">Адрес и карта — в досье после подтверждения источников.</p>
       </a>
     {% empty %}
       <div class="otz-card">Компании для этой услуги скоро будут добавлены.</div>

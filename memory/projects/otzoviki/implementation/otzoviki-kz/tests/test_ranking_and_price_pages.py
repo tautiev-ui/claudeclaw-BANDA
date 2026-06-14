@@ -52,17 +52,17 @@ def test_ranking_page_sorts_companies_by_rating_and_is_indexable(client):
     assert '"@type": "BreadcrumbList"' in html
     assert "методология" in html.lower()
     assert "платный профиль не влияет" in html.lower()
-    assert "Факторы рейтинга" in html
+    assert "Отзывы, жалобы и риски" in html
     assert "количество и свежесть отзывов" in html
     assert "официальные ответы компаний" in html
     assert "Компания может заявить профиль или дать ответ" in html
     assert "Частые вопросы о рейтинге в Алматы" in html
     assert "Почему компания выше в рейтинге?" in html
     assert "/kz/almaty/remont-kvartir/" in html
-    assert "Методология выше списка" in html
+    assert "Как составлен рейтинг" in html
     assert "Сравнительная таблица рейтинга" in html
     assert "Номинация" in html
-    assert "Жалобы / риск" in html
+    assert "Жалобы и риски" in html
     assert "Ответ компании" in html
     assert "Почему это место" in html
     assert "лидер по проверенным отзывам" in html

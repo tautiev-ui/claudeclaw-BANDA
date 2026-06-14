@@ -6,7 +6,7 @@
 {% block content %}
 <section class="otz-container otz-section">
   <div class="otz-panel otz-stack">
-    <div class="otz-eyebrow">ranking</div>
+    <div class="otz-eyebrow">Рейтинг по прозрачным правилам</div>
     <h1 class="otz-h1">Рейтинг ремонтных компаний в {{ city.name }}</h1>
     <p class="otz-text">Рейтинг строится на публичных отзывах, досье компаний и проверяемых сигналах. Платный профиль не влияет на рейтинг, отзывы, индексацию или порядок вывода.</p>
     <p><a href="/methodology/">Методология рейтинга</a> · <a href="{{ service_url }}">Все компании по ремонту квартир</a> · <a href="{{ price_url }}">Цены</a></p>
@@ -16,10 +16,10 @@
 <section class="otz-container otz-section">
   <div class="otz-grid-2">
     <div class="otz-card otz-stack">
-      <h2 class="otz-h2">Методология выше списка</h2>
+      <h2 class="otz-h2">Как составлен рейтинг</h2>
       <p>Сначала показываем правила ранжирования, затем список. Это защищает страницу от ощущения рекламного топа и объясняет, почему место нельзя купить.</p>
       <ul>
-        <li>основа: модерированные отзывы Otzoviki и rating snapshot;</li>
+        <li>основа: модерированные отзывы Otzoviki и рассчитанная оценка;</li>
         <li>усилители: свежесть, количество сигналов, полнота досье, внешний след;</li>
         <li>ограничители: жалобы, спорные паттерны, отсутствие ответа на претензии;</li>
         <li>платные функции не влияют на сортировку.</li>
@@ -35,7 +35,7 @@
 <section class="otz-container otz-section">
   <div class="otz-grid-2">
     <div class="otz-card otz-stack">
-      <h2 class="otz-h2">Факторы рейтинга</h2>
+      <h2 class="otz-h2">Отзывы, жалобы и риски</h2>
       <ul>
         <li>количество и свежесть отзывов после модерации;</li>
         <li>качество, сроки и коммуникация в оценках;</li>
@@ -60,7 +60,7 @@
             <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Место</th>
             <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Компания</th>
             <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Номинация</th>
-            <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Жалобы / риск</th>
+            <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Жалобы и риски</th>
             <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Ответ компании</th>
             <th style="text-align:left;padding:10px;border-bottom:1px solid #d7dfd2">Почему это место</th>
           </tr>
@@ -73,7 +73,7 @@
             <td style="padding:10px;border-bottom:1px solid #eef1ea">{% if forloop.first %}лидер по проверенным отзывам{% else %}сравнить по досье{% endif %}</td>
             <td style="padding:10px;border-bottom:1px solid #eef1ea">претензии проверяются через отзывы, доказательства и внешний след</td>
             <td style="padding:10px;border-bottom:1px solid #eef1ea">смотрите опубликованные ответы в досье</td>
-            <td style="padding:10px;border-bottom:1px solid #eef1ea">{% if card.snapshot %}{% localize off %}{{ card.snapshot.average_rating }}{% endlocalize %} / 5 · {{ card.snapshot.review_count }} отзывов{% else %}недостаточно rating snapshot{% endif %}</td>
+            <td style="padding:10px;border-bottom:1px solid #eef1ea">{% if card.snapshot %}{% localize off %}{{ card.snapshot.average_rating }}{% endlocalize %} / 5 · {{ card.snapshot.review_count }} отзывов{% else %}пока мало данных для расчёта{% endif %}</td>
           </tr>
           {% empty %}
           <tr><td colspan="6" style="padding:10px">Компании для рейтинга скоро будут добавлены.</td></tr>
@@ -95,11 +95,17 @@
 <section class="otz-container otz-section">
   <div class="otz-stack">
     {% for card in company_cards %}
-      <article class="otz-card otz-stack">
-        <div class="otz-eyebrow">#{{ forloop.counter }}</div>
-        <h2 class="otz-h2"><a href="{{ card.company.get_absolute_url }}">{{ card.company.name }}</a></h2>
-        <p>{{ card.company.short_description }}</p>
+      <article class="otz-card otz-stack otz-company-preview-card">
+        <div class="otz-card-preview-top">
+          <div class="otz-media-placeholder otz-media-placeholder-sm" aria-hidden="true"><span>Фото</span></div>
+          <div>
+            <div class="otz-eyebrow">#{{ forloop.counter }}</div>
+            <h2 class="otz-h2"><a href="{{ card.company.get_absolute_url }}">{{ card.company.name }}</a></h2>
+            <p>{{ card.company.short_description }}</p>
+          </div>
+        </div>
         {% if card.snapshot %}<p class="otz-muted">{% localize off %}{{ card.snapshot.average_rating }}{% endlocalize %} · {{ card.snapshot.review_count }} отзывов</p>{% endif %}
+        <p class="otz-muted">Адрес, карта и контакты показываются в досье, когда подтверждены источниками.</p>
         <p><a href="{{ card.company.get_absolute_url }}">Открыть досье</a></p>
       </article>
     {% empty %}
