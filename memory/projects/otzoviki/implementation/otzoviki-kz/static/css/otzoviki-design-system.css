@@ -234,6 +234,8 @@ button, input, textarea, select { font: inherit; }
 .otz-search-input::placeholder { color: var(--color-muted); }
 .otz-card form, form.otz-card { min-width: 0; }
 .otz-card p { min-width: 0; }
+.otz-card table { width: 42rem !important; min-width: 42rem; }
+.otz-card th, .otz-card td { vertical-align: top; overflow-wrap: normal; word-break: normal; }
 .otz-card label { display: block; margin-bottom: .35rem; font-weight: 800; color: var(--color-ink-soft); }
 .otz-card input:not(.otz-search-input), .otz-card textarea, .otz-card select,
 form.otz-card input:not(.otz-search-input), form.otz-card textarea, form.otz-card select {
