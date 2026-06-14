@@ -5,7 +5,7 @@ from django.utils import timezone
 from apps.companies.models import Company
 from apps.guides.models import Guide
 from apps.locations.models import City
-from apps.reviews.models import RatingSnapshot
+from apps.core.ui import build_company_cards
 
 
 def health(request):
@@ -18,8 +18,7 @@ def health(request):
 
 def home(request):
     companies = list(Company.objects.filter(is_active=True).order_by('name')[:6])
-    snapshots = {snapshot.company_id: snapshot for snapshot in RatingSnapshot.objects.filter(company__in=companies)}
-    company_cards = [{"company": company, "snapshot": snapshots.get(company.id)} for company in companies]
+    company_cards = build_company_cards(companies)
     return render(request, 'home.html', {
         'page_title': 'Otzoviki KZ — проверка ремонтных компаний',
         'page_description': 'Проверка ремонтных компаний Казахстана: отзывы, досье, внешний след, методология и право на ответ.',

@@ -21,6 +21,7 @@
     </div>
     <aside class="otz-home-summary otz-trust-map" aria-label="Как устроена проверка">
       <div class="otz-label">Проверка перед авансом</div>
+      {% if company_cards %}{% include "partials/trust_score_widget.html" with card=company_cards.0 %}{% endif %}
       <div class="otz-trust-orbit" aria-hidden="true">
         <span class="otz-orbit-node is-main">договор</span>
         <span class="otz-orbit-node is-reviews">отзывы</span>
@@ -30,7 +31,7 @@
       </div>
       <ul>
         <li><strong>Отзывы и рейтинг</strong><span>без продажи места в топе</span></li>
-        <li><strong>Адрес, сайт, телефон</strong><span>только если подтверждены</span></li>
+        <li><strong>Контакты и адрес</strong><span>только если подтверждены источниками</span></li>
         <li><strong>Внешние источники</strong><span>Яндекс, 2ГИС и Google</span></li>
         <li><strong>Риски перед авансом</strong><span>смета, сроки, жалобы, ответ компании</span></li>
       </ul>
@@ -53,16 +54,7 @@
   <div class="otz-section-head otz-section-head-modern"><div><div class="otz-eyebrow">Компании на проверке</div><h2 class="otz-h2">Проверенные досье</h2><p class="otz-muted">Карточки подрядчиков: отзывы, источники, контакты и риски в одном месте.</p></div><a class="otz-btn" href="/search/">Найти компанию</a></div>
   <div class="otz-grid-3">
     {% for card in company_cards|slice:":6" %}
-      <a class="otz-card otz-stack otz-company-preview-card" href="{{ card.company.get_absolute_url }}">
-        <div class="otz-card-preview-top">
-          <div class="otz-media-placeholder otz-media-placeholder-sm" aria-hidden="true"><span>Фото</span></div>
-          <div>
-            <h3>{{ card.company.name }}</h3>
-            <p class="otz-muted">Досье компании: отзывы, источники, контакты и риски.</p>
-          </div>
-        </div>
-        {% if card.snapshot %}<p class="otz-muted">{% localize off %}{{ card.snapshot.average_rating }}{% endlocalize %} · {{ card.snapshot.review_count }} отзывов</p>{% else %}<p class="otz-muted">Рейтинг пока не рассчитан</p>{% endif %}
-      </a>
+      {% include "partials/market_company_card.html" with card=card %}
     {% empty %}
       <div class="otz-card">Досье компаний появятся после проверки источников.</div>
     {% endfor %}

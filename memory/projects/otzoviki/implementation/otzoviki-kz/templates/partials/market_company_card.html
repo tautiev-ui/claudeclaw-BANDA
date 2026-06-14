@@ -1,0 +1,28 @@
+{% load l10n %}
+<a class="otz-market-company-card" href="{{ card.company.get_absolute_url }}" data-market-company-card="true">
+  <div class="otz-market-card-media">
+    <span>Фото</span>
+    <small>после проверки</small>
+  </div>
+  <div class="otz-market-card-body">
+    <div class="otz-market-card-head">
+      <div>
+        <h3>{{ card.company.name }}</h3>
+        <p>{{ card.description }}</p>
+      </div>
+      <span class="otz-risk-pill otz-risk-pill-{{ card.risk_badge.kind }}">{{ card.risk_badge.label }}</span>
+    </div>
+    <div class="otz-market-score-row">
+      <span class="otz-stars">{{ card.stars }}</span>
+      {% if card.snapshot and card.review_count > 0 %}<strong>{% localize off %}{{ card.snapshot.average_rating }}{% endlocalize %}</strong><small>{{ card.review_count }} отзывов</small>{% else %}<strong>—</strong><small>рейтинг собирается</small>{% endif %}
+    </div>
+    <div class="otz-badge-row">
+      {% for badge in card.verified_badges %}<span class="otz-safe-badge otz-safe-badge-{{ badge.kind }}">{{ badge.label }}</span>{% endfor %}
+      {% for badge in card.source_badges %}<span class="otz-safe-badge otz-safe-badge-{{ badge.kind }}">{{ badge.label }}</span>{% endfor %}
+    </div>
+    <div class="otz-market-card-foot">
+      <span>⏱ {{ card.response_label }}</span>
+      <span>{{ card.contact_label }}</span>
+    </div>
+  </div>
+</a>
