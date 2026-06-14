@@ -21,7 +21,7 @@
     </div>
     <aside class="otz-home-summary otz-trust-map" aria-label="Как устроена проверка">
       <div class="otz-label">Проверка перед авансом</div>
-      {% if company_cards %}{% include "partials/trust_score_widget.html" with card=company_cards.0 %}{% endif %}
+      {% include "partials/dossier_preview_card.html" %}
       <div class="otz-trust-orbit" aria-hidden="true">
         <span class="otz-orbit-node is-main">договор</span>
         <span class="otz-orbit-node is-reviews">отзывы</span>

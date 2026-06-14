@@ -84,9 +84,9 @@ def test_safe_marketplace_modules_are_visible(client):
     seed_local_mvp()
 
     home = client.get("/").content.decode()
-    assert 'data-trust-score-widget="true"' in home
+    assert 'data-dossier-preview="true"' in home
     assert 'data-market-company-card="true"' in home
-    assert "Otzoviki Score" in home
+    assert "Как читается досье" in home
     assert "Ответ компании пока не зафиксирован" in home
     assert "Источники сверены" in home or "Нужна сверка источников" in home
 
