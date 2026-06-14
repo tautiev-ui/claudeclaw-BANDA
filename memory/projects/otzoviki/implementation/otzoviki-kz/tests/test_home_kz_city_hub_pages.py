@@ -87,12 +87,12 @@ def test_kz_root_lists_cities_services_and_trust_links(client):
     assert "Ремонт квартир" in html
     assert "/kz/almaty/remont-kvartir/" in html
     assert "/methodology/" in html
-    assert "Карта направлений Otzoviki KZ" in html
+    assert "Что можно проверить" in html
     assert "Выберите город и услугу" in html
     assert "/review-policy/" in html
     assert "/right-of-reply/" in html
-    assert "AI и репутационные поверхности" in html
-    assert "Yandex, 2GIS и Google" in html
+    assert "Как считается рейтинг" in html
+    assert "Яндекс, 2ГИС и Google" in html
 
 
 @pytest.mark.django_db

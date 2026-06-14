@@ -11,11 +11,20 @@
       <h1 class="otz-h1">Найдите надёжную ремонтную компанию до договора</h1>
       <p class="otz-text">Введите название компании или услугу — покажем отзывы, рейтинг, источники проверки и риски перед оплатой аванса.</p>
       {% include "partials/search_box.html" with placeholder="Компания или услуга" button_label="Проверить" %}
-      <p><a href="/kz/">Перейти к Казахстану</a> · <a href="/methodology/">Методология</a></p>
+      <p><a class="otz-btn otz-btn-business" href="/kz/">Начать проверку</a> <a class="otz-btn" href="/methodology/">Как мы проверяем</a></p>
       {% include "partials/trust_strip.html" %}
     </div>
     <div class="otz-stack">
       <div class="otz-card"><div class="otz-label">Для клиента</div><div class="otz-kpi">до договора</div><p class="otz-muted">Сравните компанию по отзывам, внешним источникам и признакам риска до оплаты аванса.</p></div>
+      <div class="otz-card otz-stack">
+        <h2 class="otz-h2">Как пользоваться</h2>
+        <ol>
+          <li>Введите компанию или выберите город.</li>
+          <li>Откройте рейтинг или страницу услуги.</li>
+          <li>Сравните отзывы, источники, ответы и риски.</li>
+          <li>Запросите смету только после проверки.</li>
+        </ol>
+      </div>
       {% include "partials/right_of_reply.html" %}
     </div>
   </div>
@@ -31,7 +40,7 @@
   </div>
 </section>
 <section class="otz-container otz-section">
-  <div class="otz-section-head"><h2 class="otz-h2">Компании и досье</h2><a class="otz-btn" href="/search/">Найти компанию</a></div>
+  <div class="otz-section-head"><h2 class="otz-h2">Компании и проверка</h2><a class="otz-btn" href="/search/">Найти компанию</a></div>
   <div class="otz-grid-3">
     {% for card in company_cards %}
       <a class="otz-card otz-stack" href="{{ card.company.get_absolute_url }}">
@@ -52,7 +61,7 @@
       {% for guide in guides %}<p><a href="{{ guide.get_absolute_url }}">{{ guide.title }}</a></p>{% empty %}<p class="otz-muted">Гайды скоро будут добавлены.</p>{% endfor %}
       {% include "partials/guide_checklist.html" %}
     </div>
-    <div class="otz-card"><div class="otz-eyebrow">Business CTA</div><h2 class="otz-h2">Заявите профиль без влияния на рейтинг</h2><p class="otz-muted">B2B-функции отделены от редакционной методологии: official response, claim profile, QR flow и аудит репутации.</p><a class="otz-btn otz-btn-business" href="/claim-profile/">Заявить профиль</a></div>
+    <div class="otz-card"><div class="otz-eyebrow">Для компаний</div><h2 class="otz-h2">Заявите профиль без влияния на рейтинг</h2><p class="otz-muted">Представитель может подтвердить профиль, отвечать на отзывы и запросить аудит репутации. Место в рейтинге купить нельзя.</p><a class="otz-btn otz-btn-business" href="/claim-profile/">Заявить профиль</a></div>
   </div>
 </section>
 <section class="otz-container otz-section">

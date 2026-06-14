@@ -17,7 +17,9 @@
 <body class="otz-page">
   {% include "partials/header.html" %}
   <main id="main" class="otz-main">
+    {% include "partials/breadcrumbs.html" %}
     {% block content %}{% endblock %}
+    {% include "partials/next_step.html" %}
   </main>
   {% include "partials/footer.html" %}
 </body>

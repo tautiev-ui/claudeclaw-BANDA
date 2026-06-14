@@ -5,9 +5,9 @@
 {% block content %}
 <section class="otz-container otz-section">
   <div class="otz-panel otz-stack">
-    <div class="otz-eyebrow">KZ root</div>
-    <h1 class="otz-h1">Otzoviki KZ — Казахстан</h1>
-    <p class="otz-text">Локальный шлюз по городам Казахстана: ремонтные компании, отзывы, рейтинги, цены, методология и право на ответ.</p>
+    <div class="otz-eyebrow">Проверка компаний по городам</div>
+    <h1 class="otz-h1">Ремонтные компании Казахстана: отзывы, рейтинг и проверка</h1>
+    <p class="otz-text">Выберите город или введите название компании. Мы покажем отзывы, рейтинг, источники проверки, цены и риски до разговора с подрядчиком.</p>
     {% include "partials/search_box.html" with placeholder="Город, компания или услуга" button_label="Найти" %}
     <p><a href="/methodology/">Методология</a> · <a href="/review-policy/">Правила отзывов</a> · <a href="/right-of-reply/">Право на ответ</a></p>
   </div>
@@ -15,8 +15,8 @@
 <section class="otz-container otz-section">
   <div class="otz-grid-2">
     <div class="otz-card otz-stack">
-      <h2 class="otz-h2">Карта направлений Otzoviki KZ</h2>
-      <p>Выберите город и услугу, затем сравните досье компаний, рейтинг, цены и гайды перед обращением к подрядчику.</p>
+      <h2 class="otz-h2">Что можно проверить</h2>
+      <p>Выберите город и услугу, затем сравните компании, рейтинг, цены и гайды перед обращением к подрядчику.</p>
       <ul>
         <li>городские хабы показывают локальные компании и услуги;</li>
         <li>страницы услуг раскрывают чеклист выбора подрядчика;</li>
@@ -25,14 +25,15 @@
       </ul>
     </div>
     <div class="otz-card otz-stack">
-      <h2 class="otz-h2">AI и репутационные поверхности</h2>
-      <p>Otzoviki KZ готовит публичные, проверяемые страницы для Yandex, 2GIS и Google: методология, отзывы, право на ответ, AI notes и досье компаний.</p>
-      <p><a href="/ai-reputation.md">AI reputation notes</a> · <a href="/llms.txt">llms.txt</a> · <a href="/for-business/">Для бизнеса</a></p>
+      <h2 class="otz-h2">Как считается рейтинг</h2>
+      <p>Мы учитываем только видимые отзывы Otzoviki, проверяемые источники, свежесть данных, ответы компаний и признаки риска. Платный профиль не поднимает компанию выше.</p>
+      <p class="otz-muted">Источники проверки: Яндекс, 2ГИС и Google — как внешние подтверждения, а не как скопированные отзывы.</p>
+      <p><a href="/methodology/">Методология</a> · <a href="/right-of-reply/">Право на ответ</a> · <a href="/for-business/">Для компаний</a></p>
     </div>
   </div>
 </section>
 <section class="otz-container otz-section">
-  <div class="otz-section-head"><h2 class="otz-h2">Города</h2><a class="otz-btn" href="/kz/guides/">Гайды</a></div>
+  <div class="otz-section-head"><h2 class="otz-h2">Выберите город</h2><a class="otz-btn" href="/kz/guides/">Гайды</a></div>
   <div class="otz-grid-3">
     {% for city in cities %}
       <a class="otz-card otz-stack" href="{{ city.get_absolute_url }}">
@@ -45,7 +46,7 @@
   </div>
 </section>
 <section class="otz-container otz-section">
-  <div class="otz-section-head"><h2 class="otz-h2">Услуги MVP</h2></div>
+  <div class="otz-section-head"><h2 class="otz-h2">Популярные досье и услуги</h2></div>
   <div class="otz-grid-3">
     {% for service in services %}
       <div class="otz-card otz-stack"><h3>{{ service.name }}</h3><p class="otz-muted">Городские страницы, рейтинг и цены.</p>{% for city in cities %}<p><a href="{{ city.get_absolute_url }}{{ service.slug }}/">{{ service.name }} — {{ city.name }}</a></p>{% endfor %}</div>
