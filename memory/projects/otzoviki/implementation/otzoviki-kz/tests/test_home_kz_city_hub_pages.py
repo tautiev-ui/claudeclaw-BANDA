@@ -65,9 +65,10 @@ def test_homepage_lists_live_cities_companies_and_guides(client):
     assert "50–100" not in html
     assert "открытием индексации" not in html
     assert "Введите название компании или услугу" in html
-    assert "Сравните компанию по отзывам" in html
-    assert "/kz/" in html
-    assert "/claim-profile/" in html
+    assert "Проверьте ремонтную компанию до оплаты" in html
+    assert "Проверенные досье" in html
+    assert "Как пользоваться" in html
+    assert "Запросите смету только после проверки" in html
 
 
 @pytest.mark.django_db

@@ -63,7 +63,7 @@ def test_hybrid_required_elements_remain_visible_after_usability_pass(client):
     home = client.get("/").content.decode()
     assert "Введите название компании или услугу" in home
     assert "Города Казахстана" in home
-    assert "Компании и проверка" in home
+    assert "Проверенные досье" in home
     assert "Для компаний" in home
     assert "Как пользоваться" in home
     assert "Запросите смету только после проверки" in home

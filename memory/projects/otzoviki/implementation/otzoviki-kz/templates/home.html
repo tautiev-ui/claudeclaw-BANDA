@@ -4,31 +4,60 @@
 {% block meta_description %}{{ page_description }}{% endblock %}
 {% block robots %}{{ robots_meta }}{% endblock %}
 {% block content %}
-<section class="otz-container otz-hero">
-  <div class="otz-hero-grid">
-    <div class="otz-panel otz-stack">
-      <div class="otz-eyebrow">Проверка подрядчиков в Казахстане</div>
-      <h1 class="otz-h1">Найдите надёжную ремонтную компанию до договора</h1>
-      <p class="otz-text">Введите название компании или услугу — покажем отзывы, рейтинг, источники проверки и риски перед оплатой аванса.</p>
-      {% include "partials/search_box.html" with placeholder="Компания или услуга" button_label="Проверить" %}
-      <p><a class="otz-btn otz-btn-business" href="/kz/">Начать проверку</a> <a class="otz-btn" href="/methodology/">Как мы проверяем</a></p>
-      {% include "partials/trust_strip.html" %}
-    </div>
-    <div class="otz-stack">
-      <div class="otz-card"><div class="otz-label">Для клиента</div><div class="otz-kpi">до договора</div><p class="otz-muted">Сравните компанию по отзывам, внешним источникам и признакам риска до оплаты аванса.</p></div>
-      <div class="otz-card otz-stack">
-        <h2 class="otz-h2">Как пользоваться</h2>
-        <ol>
-          <li>Введите компанию или выберите город.</li>
-          <li>Откройте рейтинг или страницу услуги.</li>
-          <li>Сравните отзывы, источники, ответы и риски.</li>
-          <li>Запросите смету только после проверки.</li>
-        </ol>
+<section class="otz-home-hero">
+  <div class="otz-container otz-home-hero-grid">
+    <div class="otz-home-copy otz-stack">
+      <div class="otz-eyebrow">Отзывы, адреса, источники и риски</div>
+      <h1 class="otz-h1">Проверьте ремонтную компанию до оплаты</h1>
+      <p class="otz-text">Найдите подрядчика, сравните отзывы, рейтинг, контакты, Яндекс/2ГИС и признаки риска перед договором.</p>
+      <div class="otz-home-search-card">
+        {% include "partials/search_box.html" with placeholder="Введите название компании или услугу" button_label="Проверить" %}
+        <div class="otz-home-popular" aria-label="Популярные проверки">
+          <a href="/kz/almaty/remont-kvartir/">Ремонт квартир в Алматы</a>
+          <a href="/kz/almaty/reyting-remontnyh-kompaniy/">Рейтинг компаний</a>
+          <a href="/kz/almaty/remont-kvartir/ceny/">Цены и смета</a>
+        </div>
       </div>
-      {% include "partials/right_of_reply.html" %}
     </div>
+    <aside class="otz-home-summary" aria-label="Что покажем в проверке">
+      <div class="otz-label">Что покажем</div>
+      <ul>
+        <li><strong>Отзывы и рейтинг</strong><span>без продажи места в топе</span></li>
+        <li><strong>Адрес, сайт, телефон</strong><span>только если подтверждены</span></li>
+        <li><strong>Яндекс и 2ГИС</strong><span>ссылки на внешние источники</span></li>
+        <li><strong>Риски перед авансом</strong><span>смета, сроки, жалобы, ответ компании</span></li>
+      </ul>
+    </aside>
   </div>
 </section>
+
+<section class="otz-container otz-section otz-home-fast-actions" aria-label="Быстрые действия">
+  <a class="otz-action-card" href="/kz/almaty/remont-kvartir/"><span>01</span><strong>Выбрать подрядчика</strong><small>Список компаний по ремонту</small></a>
+  <a class="otz-action-card" href="/kz/almaty/reyting-remontnyh-kompaniy/"><span>02</span><strong>Сравнить рейтинг</strong><small>Отзывы, риски, официальный ответ</small></a>
+  <a class="otz-action-card" href="/search/"><span>03</span><strong>Найти компанию</strong><small>Проверка по названию</small></a>
+  <a class="otz-action-card" href="/kz/guides/kak-proverit-remontnuyu-kompaniyu/"><span>04</span><strong>Понять, что проверять</strong><small>Короткий чеклист перед договором</small></a>
+</section>
+
+<section class="otz-container otz-section">
+  <div class="otz-section-head"><h2 class="otz-h2">Проверенные досье</h2><a class="otz-btn" href="/search/">Найти компанию</a></div>
+  <div class="otz-grid-3">
+    {% for card in company_cards|slice:":6" %}
+      <a class="otz-card otz-stack otz-company-preview-card" href="{{ card.company.get_absolute_url }}">
+        <div class="otz-card-preview-top">
+          <div class="otz-media-placeholder otz-media-placeholder-sm" aria-hidden="true"><span>Фото</span></div>
+          <div>
+            <h3>{{ card.company.name }}</h3>
+            <p class="otz-muted">Досье компании: отзывы, источники, контакты и риски.</p>
+          </div>
+        </div>
+        {% if card.snapshot %}<p class="otz-muted">{% localize off %}{{ card.snapshot.average_rating }}{% endlocalize %} · {{ card.snapshot.review_count }} отзывов</p>{% else %}<p class="otz-muted">Рейтинг пока не рассчитан</p>{% endif %}
+      </a>
+    {% empty %}
+      <div class="otz-card">Досье компаний появятся после проверки источников.</div>
+    {% endfor %}
+  </div>
+</section>
+
 <section class="otz-container otz-section">
   <div class="otz-section-head"><h2 class="otz-h2">Города Казахстана</h2><a class="otz-btn" href="/kz/">Все города</a></div>
   <div class="otz-grid-3">
@@ -39,34 +68,37 @@
     {% endfor %}
   </div>
 </section>
+
 <section class="otz-container otz-section">
-  <div class="otz-section-head"><h2 class="otz-h2">Компании и проверка</h2><a class="otz-btn" href="/search/">Найти компанию</a></div>
+  <div class="otz-grid-2">
+    <div class="otz-card otz-stack">
+      <div class="otz-eyebrow">Как пользоваться</div>
+      <h2 class="otz-h2">Путь как у нормального marketplace</h2>
+      <ol>
+        <li>Введите компанию или выберите город.</li>
+        <li>Откройте рейтинг или страницу услуги.</li>
+        <li>Сравните отзывы, источники, ответы и риски.</li>
+        <li>Запросите смету только после проверки.</li>
+      </ol>
+    </div>
+    <div class="otz-card otz-stack">
+      <div class="otz-eyebrow">Для компаний</div>
+      <h2 class="otz-h2">Заявите профиль без влияния на рейтинг</h2>
+      <p class="otz-muted">Представитель может подтвердить профиль, отвечать на отзывы и запросить аудит репутации. Место в рейтинге купить нельзя.</p>
+      <a class="otz-btn otz-btn-business" href="/claim-profile/">Заявить профиль</a>
+    </div>
+  </div>
+</section>
+
+<section class="otz-container otz-section">
   <div class="otz-grid-3">
-    {% for card in company_cards %}
-      <a class="otz-card otz-stack" href="{{ card.company.get_absolute_url }}">
-        <h3>{{ card.company.name }}</h3>
-        <p>{{ card.company.short_description }}</p>
-        {% if card.snapshot %}<p class="otz-muted">{% localize off %}{{ card.snapshot.average_rating }}{% endlocalize %} · {{ card.snapshot.review_count }} отзывов</p>{% endif %}
-      </a>
-    {% empty %}
-      <div class="otz-card">Досье компаний появятся после проверки источников.</div>
-    {% endfor %}
+    <div class="otz-card otz-stack"><div class="otz-eyebrow">Гайды</div><h2 class="otz-h2">Как выбирать подрядчика</h2>{% for guide in guides|slice:":4" %}<p><a href="{{ guide.get_absolute_url }}">{{ guide.title }}</a></p>{% empty %}<p class="otz-muted">Гайды скоро будут добавлены.</p>{% endfor %}{% include "partials/guide_checklist.html" %}</div>
+    <div class="otz-card otz-stack"><div class="otz-eyebrow">Пример карточки</div>{% include "partials/company_card.html" with company_initial="A" company_name="Alma Remont" company_meta="досье компании" company_score="4.6" %}</div>
+    {% include "partials/right_of_reply.html" %}
   </div>
 </section>
 <section class="otz-container otz-section">
   <div class="otz-grid-2">
-    <div class="otz-card otz-stack">
-      <div class="otz-eyebrow">Гайды</div>
-      <h2 class="otz-h2">Как выбирать подрядчика</h2>
-      {% for guide in guides %}<p><a href="{{ guide.get_absolute_url }}">{{ guide.title }}</a></p>{% empty %}<p class="otz-muted">Гайды скоро будут добавлены.</p>{% endfor %}
-      {% include "partials/guide_checklist.html" %}
-    </div>
-    <div class="otz-card"><div class="otz-eyebrow">Для компаний</div><h2 class="otz-h2">Заявите профиль без влияния на рейтинг</h2><p class="otz-muted">Представитель может подтвердить профиль, отвечать на отзывы и запросить аудит репутации. Место в рейтинге купить нельзя.</p><a class="otz-btn otz-btn-business" href="/claim-profile/">Заявить профиль</a></div>
-  </div>
-</section>
-<section class="otz-container otz-section">
-  <div class="otz-grid-3">
-    <div class="otz-card otz-stack"><div class="otz-eyebrow">Пример карточки</div>{% include "partials/company_card.html" with company_initial="A" company_name="Alma Remont" company_meta="досье компании" company_score="4.6" %}</div>
     {% include "partials/evidence_card.html" %}
     {% include "partials/risk_block.html" %}
   </div>
