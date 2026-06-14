@@ -10,20 +10,20 @@
       <a href="/kz/guides/">Гайды</a>
       <a href="/methodology/">Методология</a>
     </nav>
-    <div class="otz-city-selector" data-city-selector="true">
-      <span class="otz-muted">Город:</span>
+    <nav class="otz-city-selector" data-city-selector="true" aria-label="Города">
       {% for city in city_selector_cities %}
-        <details class="otz-city-choice">
-          <summary>{{ city.name }}</summary>
-          <a href="{{ city.get_absolute_url }}">Хаб</a>
-          <a href="{{ city.get_absolute_url }}remont-kvartir/">Ремонт квартир</a>
-          <a href="{{ city.get_absolute_url }}reyting-remontnyh-kompaniy/">Рейтинг</a>
-          <a href="{{ city.get_absolute_url }}remont-kvartir/ceny/">Цены</a>
-        </details>
+        <span class="otz-city-group">
+          <a class="otz-city-choice" href="{{ city.get_absolute_url }}">{{ city.name }}</a>
+          <span class="otz-city-context-links" aria-label="Разделы города {{ city.name }}">
+            <a href="{{ city.get_absolute_url }}remont-kvartir/">Ремонт</a>
+            <a href="{{ city.get_absolute_url }}reyting-remontnyh-kompaniy/">Рейтинг</a>
+            <a href="{{ city.get_absolute_url }}remont-kvartir/ceny/">Цены</a>
+          </span>
+        </span>
       {% empty %}
-        <a href="/kz/">Казахстан</a>
+        <a class="otz-city-choice" href="/kz/">Казахстан</a>
       {% endfor %}
-    </div>
+    </nav>
     <a class="otz-btn otz-btn-business" href="/for-business/">Для бизнеса</a>
   </div>
 </header>
