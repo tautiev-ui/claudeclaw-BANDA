@@ -68,7 +68,7 @@ def test_hybrid_required_elements_remain_visible_after_usability_pass(client):
     assert "Проверенные досье" in home
     assert "Для компаний" in home
     assert "Как пользоваться" in home
-    assert "Запросите смету только после проверки" in home
+    assert "Просите смету" in home
     assert "Методология" in home
 
     kz = client.get("/kz/").content.decode()
