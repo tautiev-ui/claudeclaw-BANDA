@@ -12,7 +12,7 @@ def test_home_renders(client):
     response = client.get('/')
     body = response.content.decode('utf-8')
     assert response.status_code == 200
-    assert 'Проверьте ремонтную компанию' in body
+    assert 'Найдите надёжную ремонтную компанию' in body
     assert 'otz-search-form' in body
     assert 'Платный профиль ≠ рейтинг' in body
 

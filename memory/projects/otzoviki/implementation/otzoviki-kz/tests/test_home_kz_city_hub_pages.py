@@ -60,8 +60,11 @@ def test_homepage_lists_live_cities_companies_and_guides(client):
     assert "Alma Remont" in html
     assert "Как проверить ремонтную компанию" in html
     assert "Launch batch" not in html
+    assert "Otzoviki KZ MVP" not in html
+    assert "SEO-first SSR" not in html
     assert "50–100" not in html
     assert "открытием индексации" not in html
+    assert "Введите название компании или услугу" in html
     assert "Сравните компанию по отзывам" in html
     assert "/kz/" in html
     assert "/claim-profile/" in html
