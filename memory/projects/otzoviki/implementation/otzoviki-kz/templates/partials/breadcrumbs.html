@@ -1,4 +1,4 @@
-<nav class="otz-breadcrumbs otz-container" data-breadcrumbs="true" aria-label="Хлебные крошки">
+<nav class="otz-breadcrumbs otz-container{% if visible_breadcrumbs|length == 1 %} otz-breadcrumbs-home{% endif %}" data-breadcrumbs="true" aria-label="Хлебные крошки">
   <a class="otz-back-link" data-back-link="true" href="{{ back_url }}">← {{ back_label|default:"Назад" }}</a>
   <ol>
     {% for crumb in visible_breadcrumbs %}
